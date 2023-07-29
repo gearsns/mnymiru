@@ -19,7 +19,7 @@ const getItem = (label, key, icon, children, type) => {
 		type,
 	}
 }
-const setrRcently = async database => {
+const setRcently = async database => {
 	const dirHandle = database.dirHandle
 	const fileHandle = database.fileHandle
 	let name = ""
@@ -90,7 +90,7 @@ const openDB = async (folder, name) => {
 		} else {
 			await database.open(handle)
 		}
-		await setrRcently(database)
+		await setRcently(database)
 		message.success(`${database.file.name} を開きました。`)
 		return database
 	} catch (err) {
@@ -210,7 +210,7 @@ const MainMenu = forwardRef(function MainMenu(props, ref) {
 				database = await dataManager.save()
 			}
 			if(database){
-				await setrRcently(database)
+				await setRcently(database)
 				storeDispatch({ type: "RefreshDatabase", store: database })
 				message.success(`ファイルを保存しました`)
 				handleClose()

@@ -44,8 +44,9 @@ export default class Database {
 	}
 	async openFolder(dirHandle, filename) {
 		if (window.showDirectoryPicker) {
+			let newDirHanlde
 			if (dirHandle) {
-				this.dirHandle = dirHandle
+				newDirHanlde = dirHandle
 				if (dirHandle.kind === 'file') {
 					await this.open(dirHandle)
 					return
@@ -60,13 +61,14 @@ export default class Database {
 					}
 				}
 			} else {
-				this.dirHandle = await window.showDirectoryPicker({ mode: "readwrite" })
+				newDirHanlde = await window.showDirectoryPicker({ mode: "readwrite" })
 			}
 			if (!filename) {
 				filename = 'cash.db'
 			}
-			await this.open(await this.dirHandle.getFileHandle(filename, { create: true }))
+			await this.open(await newDirHanlde.getFileHandle(filename, { create: true }))
 			this.savedFlag = true
+			this.dirHandle = newDirHanlde
 		} else {
 			throw new Error('Please allow the storage access permission request.')
 		}
