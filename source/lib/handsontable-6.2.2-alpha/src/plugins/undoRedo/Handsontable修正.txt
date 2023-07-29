@@ -1,0 +1,60 @@
+Handsontable
+
+1. undoの時に、行を削除しようとしてundoバッファをクリアしている
+  途中で、plugin.doneが呼ばれる？
+  
+UndoRedo.ChangeAction.prototype.undo = function(instance, undoneCallback) {
+  const data = deepClone(this.changes);
+  const emptyRowsAtTheEnd = instance.countEmptyRows(true);
+  const emptyColsAtTheEnd = instance.countEmptyCols(true);
+
+  for (let i = 0, len = data.length; i < len; i++) {
+    data[i].splice(3, 1);
+  }
+
+  instance.addHookOnce('afterChange', undoneCallback);
+
+  instance.setDataAtRowProp(data, null, null, 'UndoRedo.undo');
+  const buf = instance.undoRedo.undoneActions.slice(); // 2022/04/18 Gears
+  for (let i = 0, len = data.length; i < len; i++) {
+    if (instance.getSettings().minSpareRows && data[i][0] + 1 + instance.getSettings().minSpareRows === instance.countRows() &&
+      emptyRowsAtTheEnd === instance.getSettings().minSpareRows) {
+
+      instance.alter('remove_row', parseInt(data[i][0] + 1, 10), instance.getSettings().minSpareRows);
+      instance.undoRedo.doneActions.pop();
+
+    }
+
+    if (instance.getSettings().minSpareCols && data[i][1] + 1 + instance.getSettings().minSpareCols === instance.countCols() &&
+      emptyColsAtTheEnd === instance.getSettings().minSpareCols) {
+
+      instance.alter('remove_col', parseInt(data[i][1] + 1, 10), instance.getSettings().minSpareCols);
+      instance.undoRedo.doneActions.pop();
+    }
+  }
+  instance.undoRedo.undoneActions = buf; // 2022/04/18 Gears
+};
+
+2. 新規行にnullで登録するとapplyChanges -> grid.adjustRowsAndCols(); -> var emptyRows = instance.countEmptyRows(true);で
+ 登録した行がempty扱いされ行が拡張されない
+  moveSelectionAfterEnterを実行時に、null値が入るので、KEY_CODES.ENTERで入力をとめる
+      case KEY_CODES.ENTER:
+        /* return/enter */
+        if (_this.isEditorOpened()) {
+
+          if (activeEditor && activeEditor.state !== EditorState.WAITING) {
+            const val = activeEditor.getValue(); // 2022/04/20 Gears
+            if (val === '' || val === null) {
+              const rowCount = instance.countRows();
+              const minSpareRows = instance.getSettings().minSpareRows;
+              if (activeEditor.row >= rowCount - minSpareRows - 1) {
+                _this.closeEditorAndRestoreOriginalValue(ctrlDown);
+                activeEditor.focus();
+                event.preventDefault(); // don't add newline to field
+                return;
+              }
+            } // 2022/04/20 Gears
+            _this.closeEditorAndSaveChanges(ctrlDown);
+          }
+          moveSelectionAfterEnter(event.shiftKey);
+

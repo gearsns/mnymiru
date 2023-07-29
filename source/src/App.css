@@ -1,0 +1,252 @@
+/*
+.App {
+  text-align: center;
+}
+*/
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.cell_sun {
+  color: coral;
+  text-align: right;
+}
+.cell_sat {
+  color: cornflowerblue;
+  text-align: right;
+}
+.cell_mon, .cell_tue, .cell_wed, .cell_thu, .cell_fri {
+  text-align: right;
+}
+.cell_day_error {
+  position: relative;
+  color: red;
+}
+.cell_day_error::after {
+  position: absolute;
+  content: "";
+  top: 1px;
+  right: 2px;
+  width: 3.5px;
+  height: 3.5px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border:1px solid whitesmoke;
+  background: red;
+  transform: translateZ(0) scale(1.0, 1.0) rotate(45deg);
+}
+.cell_shop {
+  text-align: left;
+}
+.cell_time {
+  text-align: left;
+}
+.cell_day_same, .cell_shop_same, .cell_time_same {
+  position: relative;
+}
+.cell_day_same::after, .cell_shop_same::after, .cell_time_same::after{
+  position: absolute;
+  content: "";
+  background-color: rgba(255,255,255,0.8);
+  display: block;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.cell_positive_num {
+  color: cornflowerblue;
+  text-align: right;
+}
+.cell_negative_num {
+  color: coral;
+  text-align: right;
+}
+.cell_row_top {
+  /*background-color: tomato !important;*/
+  border-bottom-style: hidden !important;
+}
+.cell_row_body {
+  /*background-color: lightpink !important;*/
+  border-bottom-style: hidden !important;
+}
+.cell_row_bottom {
+  /*background-color: lightpink !important;*/
+  /*border-bottom-style: hidden !important;*/
+}
+.handsontable table.htCore td {
+  white-space: pre;
+}
+.handsontableInputHolder
+{
+  z-index: 1000;
+}
+
+.handsontable.autocompleteEditor
+{
+  border: 1px solid #AAAAAA;
+  box-shadow: 10px 10px 15px #AAAAAA;
+  background-color: white;
+  min-width: 200px;
+}
+
+.handsontable.autocompleteEditor.handsontable
+{
+  padding-right: 0px;
+}
+
+.handsontable.listbox .ht_master table
+{
+  border: none;
+}
+
+.autocompleteEditor .wtHolder 
+{
+  min-width: 200px;
+}
+
+
+.autocompleteEditor .htCore
+{
+  border: none !important;
+  -webkit-box-shadow: none !important;
+  box-shadow: none !important;
+  min-width: 180px !important;
+}
+
+.autocompleteEditor .ht_clone_top, .autocompleteEditor .ht_clone_left
+{
+  display: none;
+}
+.handsontable .autocompleteEditor {
+  position: fixed !important;
+}
+
+.cell_num_error {
+  position: relative;
+  color: red;
+}
+.cell_num_error::after {
+  position: absolute;
+  content: "";
+  top: 1px;
+  right: 2px;
+  width: 3.5px;
+  height: 3.5px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border:1px solid whitesmoke;
+  background: red;
+  transform: translateZ(0) scale(1.0, 1.0) rotate(45deg);
+}
+
+.header {
+  color: #fff;
+  background-color: #eee;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  width: 100%;
+  padding: 0 10px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+}
+.footer {
+  border-top: 1px solid #e8e8e8;
+  position: absolute;
+  font-size: 14px;
+  height: 40px;
+  left: 0;
+  bottom: 0;
+  padding: 8px;
+  margin: 0;
+  width: 100%;
+  background-color: white;
+  z-index: 1;
+}
+h1.title {
+  margin-left: 10px;
+  margin-bottom: 14px;
+  font-size: 25px;
+}
+.title_header {
+  color: '#666';
+  background-color: #eee;
+  border-top: 1px solid #e8e8e8;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  width: 100%;
+  padding: 0 4px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+}
+.input_sheet, .search_sheet
+{
+  padding: '0';
+  overflow: 'hidden';
+}
+.mny_hottable {
+  width: 100%;
+  height: 100%;
+}
+.tab_pane
+{
+  height: 100%;
+}
+.tab_pane_layout
+{
+  height: 100%;
+}
+.tab_pane_content
+{
+  height: calc(100% - 80px);
+  overflow: hidden;
+}
+.tab_pane_content_chart
+{
+  height: calc(100% - 80px);
+  overflow: auto;
+}
+.search_box
+{
+  width: 304px;
+}
+.select_box
+{
+  width: 400px;
+}
