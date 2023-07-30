@@ -734,7 +734,7 @@ const InputSheet = forwardRef(function InputSheet(props, ref) {
 				if (selectionTotal !== 0 && selectionTotal !== total) {
 					callbacks.setStatus(<>
 						<span>{data[dispRow][MyColumn.Shop] || ""}：{total.toLocaleString()}</span>
-						<span style={{ position: "absolute", right: "10px" }}>選択範囲の合計：{selectionTotal.toLocaleString()}</span>
+						<span className="select_total">選択範囲の合計：{selectionTotal.toLocaleString()}</span>
 					</>)
 				} else {
 					callbacks.setStatus(`${data[dispRow][MyColumn.Shop] || ""}：${total.toLocaleString()}`)

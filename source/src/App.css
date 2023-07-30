@@ -250,3 +250,14 @@ h1.title {
 {
   width: 400px;
 }
+.select_total
+{
+  position: absolute;
+  right: 10px;
+}
+.source_link
+{
+  position: absolute;
+  right: 10px;
+  font-size: 25px;
+}

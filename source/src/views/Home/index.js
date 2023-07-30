@@ -7,7 +7,7 @@ import { InuptPaneContext } from './InputPane'
 import { SearchPaneContext } from './SearchPane'
 import { ChartPaneContent } from './ChartPane'
 import {
-  MenuOutlined,
+  MenuOutlined, GithubOutlined,
   EditOutlined, SearchOutlined, BarChartOutlined,
 } from '@ant-design/icons'
 import Database from '../../lib/database'
@@ -106,6 +106,7 @@ const Home = _ => {
         <Button type='text' onClick={showDrawer}><MenuOutlined /></Button>
         <img src={logoimage} /> <h1 className='title'>MnyMiru</h1>
         {filename}
+        <span className="source_link"><a href="https://github.com/gearsns/mnymiru"><GithubOutlined /></a></span>
       </Header>
       <Content>
         <DockLayout ref={refDock} defaultLayout={defaultLayout}
