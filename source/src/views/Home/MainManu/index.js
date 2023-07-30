@@ -123,10 +123,11 @@ const getFileMenuItems = recently_items => {
 	}
 	if (window.showSaveFilePicker) {
 		file_items.push(getItem("保存", 'save', <SaveOutlined />))
-		file_items.push(getItem("名前を付けて保存", 'saveas', <ExportOutlined />))
+		file_items.push(getItem("名前を付けて保存", 'saveas', <SaveOutlined />))
 	} else {
-		file_items.push(getItem("名前を付けて保存", 'save', <ExportOutlined />))
+		file_items.push(getItem("名前を付けて保存", 'save', <SaveOutlined />))
 	}
+	file_items.push(getItem("CSV形式でエクスポート", 'export', <ExportOutlined />))
 	return [
 		getItem('ファイル', 'file_menu', <MenuOutlined />, file_items)
 	]
@@ -240,10 +241,21 @@ const MainMenu = forwardRef(function MainMenu(props, ref) {
 					handleClose()
 				}
 				break
-			case 'fileopen': handleOpenDB(false); break
-			case 'folderopen': handleOpenDB(true); break
-			case 'save': handleSaveDB(false); break
-			case 'saveas': handleSaveDB(true); break
+			case 'fileopen': await handleOpenDB(false); break
+			case 'folderopen': await handleOpenDB(true); break
+			case 'save': await handleSaveDB(false); break
+			case 'saveas': await handleSaveDB(true); break
+			case 'export':
+				if (store.database) {
+					try {
+						await store.database.csvExport()
+						message.success(`CSVファイルにエクスポートしました。`)
+						handleClose()
+					} catch{
+						//
+					}
+				}
+				break
 			default:
 				{
 					const m = e.key.match(/file:\/\/\/(.*)/)
@@ -257,7 +269,7 @@ const MainMenu = forwardRef(function MainMenu(props, ref) {
 	//
 	useEffect(_ => {
 		let ignore = false
-		const eventListener = e => {
+		const eventListener = async e => {
 			if (ignore || e.altKey || e.metaKey || e.shiftKey || !e.ctrlKey) {
 				return
 			}

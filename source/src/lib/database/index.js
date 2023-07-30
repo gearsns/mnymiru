@@ -201,6 +201,66 @@ export default class Database {
 		await writer.close()
 		this.savedFlag = true
 	}
+	async csvExport() {
+		if (!this.db) {
+			return
+		}
+		let data = [
+			["日付(年)", "日付(月)", "日付(日)", "店名", "時間", "項目", "内訳", "支出", "数量", "収入", "小計", "現金/口座", "備考"]
+		]
+		for (const tret of this.db.exec(`SELECT
+		year_month,day,shop_name,time,item_name,detail,expenses,quantity,incomes,total,account,note
+		FROM cash WHERE day>=0
+		ORDER BY year_month, line_no
+		`)) {
+			for (const item of tret.values) {
+				const [year_month, day, shop_name, time, item_name, detail, expenses, quantity, incomes, total, account, note] = item
+				if (year_month) {
+					const m = year_month.toString().match(/^([0-9]{4})([0-9]{2})$/)
+					if (m && m.length > 1) {
+						const year = Math.trunc(m[1])
+						const month = Math.trunc(m[2])
+						data.push([year, month, day || "", shop_name, time, item_name, detail, expenses, quantity, incomes, total, account, note])
+					}
+				}
+			}
+		}
+		const escapeForCSV = s => {
+			s = (s || "").toString()
+			if (s.match(/["\r\n]/)) {
+				return `"${s.replace(/\"/g, '\"\"')}"`
+			}
+			return s
+		}
+		const arrToString = arr => arr.map(row => row.map(cell => escapeForCSV(cell)).join(",")).join("\n")
+		const blob = new Blob([arrToString(data)], { type: "text/csv" })
+		if (window.showSaveFilePicker) {
+			const fileHandle = await window.showSaveFilePicker({
+				types: [
+					{
+						description: "CSV file",
+						accept: { "text/csv": [".csv"] }
+					}
+				]
+			})
+			const writer = await fileHandle.createWritable()
+			await writer.truncate(0)
+			await writer.write(blob)
+			await writer.close()
+		} else {
+			const a = document.createElement('a')
+			a.href = URL.createObjectURL(blob)
+			if (this.file) {
+				a.download = this.file.name
+			} else {
+				a.download = 'cash.csv'
+			}
+			a.style.display = 'none'
+			document.body.appendChild(a)
+			a.click()
+			document.body.removeChild(a)
+		}
+	}
 	setModify() {
 		this.savedFlag = false
 	}
@@ -221,13 +281,26 @@ export default class Database {
 		const db = this.db
 		db.exec("BEGIN TRANSACTION")
 		db.exec(`UPDATE cash SET day=-1 WHERE year_month='${yearmonth}'`)
+		const idmap = {}
+		for (const tret of db.exec(`SELECT id,line_no FROM cash WHERE year_month='${yearmonth}'`)) {
+			for (const item of tret.values) {
+				idmap[item[1]] = item[0]
+			}
+		}
+		//
 		const stmt = db.prepare("INSERT OR REPLACE INTO cash ("
 			+ " year_month,day,shop_name,time,item_name,detail,expenses,quantity,incomes,total,account,note,id,line_no"
 			+ ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
 		let line_no = 0
 		for (const item of data) {
 			let bnext = true
-			for (let i = 0; i < 12; ++i) {
+			for (let i = 0; i < 11; ++i) {
+				// 支出,数量,収入,小計は、0の場合は未入力と判断
+				if(i === 5 || i === 6 || i === 7 || i === 8){
+					if(0 === parseFloat(item[i])){
+						continue
+					}
+				}
 				if (!IsEmpty(item[i])) {
 					bnext = false
 					break
@@ -238,7 +311,8 @@ export default class Database {
 				continue
 			}
 			const [day, shop_name, time, item_name, detail, expenses, quantity, incomes, total, account, note, id] = item
-			stmt.run([yearmonth, Math.max(day || 0, 0), shop_name || "", time || "", item_name || "", detail || "", expenses || 0, quantity || 0, incomes || 0, total || 0, account || "", note || "", id || null, line_no])
+			const newId = idmap[line_no] || id || null
+			stmt.run([yearmonth, Math.max(day || 0, 0), shop_name || "", time || "", item_name || "", detail || "", expenses || 0, quantity || 0, incomes || 0, total || 0, account || "", note || "", newId, line_no])
 			++line_no
 		}
 		stmt.free()
@@ -268,7 +342,7 @@ export default class Database {
 		const d = dayjs(Date.now()).add(-3, 'y').format('YYYYMM')
 		for (const tret of this.db.exec(`SELECT * FROM (SELECT 
 			${dst} AS dst,COUNT(*) AS cnt FROM cash WHERE ${src}=?
-			AND year_month>=? AND day IS NOT NULL
+			AND year_month>=? AND day >= 0
 			GROUP BY  dst)
 			ORDER BY cnt DESC LIMIT 1
 		  `, [value, d])) {
@@ -286,7 +360,7 @@ export default class Database {
 		if (this.db) {
 			const d = dayjs(Date.now()).add(-3, 'y').format('YYYYMM')
 			for (const tret of this.db.exec(`SELECT * FROM
-			(SELECT ${itemName} as n, count(*) as c FROM cash WHERE year_month>='${d}' AND day IS NOT NULL GROUP BY ${itemName})
+			(SELECT ${itemName} as n, count(*) as c FROM cash WHERE year_month>='${d}' AND day >= 0 GROUP BY ${itemName})
 			ORDER BY c desc
 			`)) {
 				data = tret.values

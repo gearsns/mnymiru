@@ -7,6 +7,7 @@ import * as migemo from 'jsmigemo/dist/jsmigemo.mjs'
 import { IsEmpty } from "../../../lib/utils"
 import { dataManager } from "../../../DataManager"
 import { searchKeyEvent, execSearch, handleBeforeColumnResizeBase, MyColumn } from "../../../lib/sheet"
+import { MoneyCollectFilled } from "@ant-design/icons"
 
 // 再レンダリングされてデータが消えるので
 // 固定でもつ…
@@ -506,6 +507,18 @@ const InputSheet = forwardRef(function InputSheet(props, ref) {
 					rows[row + 1] = true
 				}
 			})
+			const setTotal = (afterRowCur, row) => {
+				let oldValue = afterRowCur[MyColumn.Total]
+				let num = parseFloat(afterRowCur[MyColumn.Num] || 1)
+				if (num === 0) {
+					num = 1
+				}
+				afterRowCur[MyColumn.Total] =
+					(parseFloat(afterRowCur[MyColumn.Income] || 0)
+						- parseFloat(afterRowCur[MyColumn.Expend] || 0))
+					* num
+				changes.push([row, MyColumn.Total, oldValue, afterRowCur[MyColumn.Total]])
+			}
 			// 入力した値が空白のみの場合は、自動で項目を設定しない
 			if (!bSkipAutoFill) {
 				const copyItem = (afterRowCur, afterRowPre, row, col) => {
@@ -518,18 +531,6 @@ const InputSheet = forwardRef(function InputSheet(props, ref) {
 					&& source !== "UndoRedo.redo"
 					&& source !== "Sort!"
 				) {
-					const setTotal = (afterRowCur, row) => {
-						let oldValue = afterRowCur[MyColumn.Total]
-						let num = parseFloat(afterRowCur[MyColumn.Num] || 1)
-						if (num === 0) {
-							num = 1
-						}
-						afterRowCur[MyColumn.Total] =
-							(parseFloat(afterRowCur[MyColumn.Income] || 0)
-								- parseFloat(afterRowCur[MyColumn.Expend] || 0))
-							* num
-						changes.push([row, MyColumn.Total, oldValue, afterRowCur[MyColumn.Total]])
-					}
 					const setTime = (value, index) => {
 						const paddingZeo = v => `00${v}`.slice(-2)
 						let m = value.match(/^([0-9]+):([0-9]+)$/)
@@ -616,6 +617,16 @@ const InputSheet = forwardRef(function InputSheet(props, ref) {
 						curRow[col] = newValue
 						rows[row] = true
 					}
+					// 100*2 -> 100,2
+					if (col === MyColumn.Income
+						|| col === MyColumn.Expend) {
+						const m = afterRowCur[col].match(/^([0-9]+)(?:\*|x)([0-9]+)$/i)
+						if (m && m.length > 1) {
+							afterRowCur[col] = change[3] = m[1]
+							setValue(afterRowCur, row, MyColumn.Num, m[2])
+							setTotal(afterRowCur, row)
+						}
+					}
 					// レシートの一行目なら日付と店名と時間、口座はまとめて変更
 					if (
 						(
@@ -659,6 +670,21 @@ const InputSheet = forwardRef(function InputSheet(props, ref) {
 					}
 				}
 			}
+			//
+			if (changes) {
+				const changesKey = {}
+				for (const change of changes) {
+					const row = change[0]
+					const col = change[1]
+					const key = `${row}x${col}`
+					if (changesKey[key]) {
+						changesKey[key][3] = change[3]
+					} else {
+						changesKey[key] = change
+					}
+				}
+			}
+			//
 			for (const item of Object.keys(rows)) {
 				setConfg(data, afterData, parseInt(item))
 			}
