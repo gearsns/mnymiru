@@ -91,7 +91,11 @@ const openDB = async (folder, name) => {
 			await database.open(handle)
 		}
 		await setRcently(database)
-		message.success(`${database.file.name} を開きました。`)
+		if (database.dirHandle) {
+			message.success(`${database.dirHandle.name}/${database.file.name} を開きました。`)
+		} else {
+			message.success(`${database.file.name} を開きました。`)
+		}
 		return database
 	} catch (err) {
 		if (err.name === "AbortError") {
@@ -119,9 +123,9 @@ const getFileMenuItems = recently_items => {
 	}
 	if (window.showSaveFilePicker) {
 		file_items.push(getItem("保存", 'save', <SaveOutlined />))
-		file_items.push(getItem("保存を付けて保存", 'saveas', <ExportOutlined />))
+		file_items.push(getItem("名前を付けて保存", 'saveas', <ExportOutlined />))
 	} else {
-		file_items.push(getItem("保存を付けて保存", 'save', <ExportOutlined />))
+		file_items.push(getItem("名前を付けて保存", 'save', <ExportOutlined />))
 	}
 	return [
 		getItem('ファイル', 'file_menu', <MenuOutlined />, file_items)
@@ -209,7 +213,7 @@ const MainMenu = forwardRef(function MainMenu(props, ref) {
 			} else {
 				database = await dataManager.save()
 			}
-			if(database){
+			if (database) {
 				await setRcently(database)
 				storeDispatch({ type: "RefreshDatabase", store: database })
 				message.success(`ファイルを保存しました`)

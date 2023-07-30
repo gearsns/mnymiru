@@ -70,7 +70,7 @@ const Home = _ => {
       })
     if (latestItem) {
       await database.openBuffer(latestItem.arrayBuffer, latestItem.fileHandle, latestItem.dirHandle)
-      if(latestItem.savedFlag === false){
+      if (latestItem.savedFlag === false) {
         database.setModify()
       }
     } else {
@@ -84,7 +84,11 @@ const Home = _ => {
   }
   useEffect(_ => {
     if (store.database && store.database.fileHandle) {
-      setFilename(store.database.fileHandle.name)
+      if (store.database.dirHandle) {
+        setFilename(`${store.database.dirHandle.name}/${store.database.fileHandle.name}`)
+      } else {
+        setFilename(store.database.fileHandle.name)
+      }
     } else {
       setFilename("")
     }
