@@ -24,7 +24,10 @@ Handsontable.renderers.registerRenderer('my.number',
 		Handsontable.renderers.NumericRenderer.apply(this, arguments)
 		let num = undefined
 		if (typeof value === 'string' && value.match(/^\s*[-0-9]+\s*$/)) {
-			num = parseFloat(value) || undefined
+			num = parseFloat(value)
+			if(num !== 0 && !num){
+				num = undefined
+			}
 		} else if (typeof value === 'number') {
 			num = value === 0 ? value : (value || undefined)
 		}

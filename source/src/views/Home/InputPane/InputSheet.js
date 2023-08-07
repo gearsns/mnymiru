@@ -310,6 +310,71 @@ const setConfg = (data, afterData, row) => {
 	}
 }
 
+const dupData = hot => {
+	hot.getSelected()
+	const customSettings = hot.getSettings().customSettings
+	const data = customSettings.data
+	const cells = {}
+	const range = {}
+	for (const [startRow, startCol, endRow, endCol] of hot.getSelected()) {
+		if (range.startRow === undefined) {
+			range.startRow = startRow
+			range.startCol = startCol
+			range.endRow = endRow
+			range.endCol = endCol
+		}
+		let sr = startRow
+		let er = endRow
+		if (sr > er) {
+			sr = endRow
+			er = startRow
+		}
+		if (range.startRow > sr) {
+			range.startRow = sr
+		}
+		if (range.endRow < er) {
+			range.endRow = er
+		}
+		let sc = startCol
+		let ec = endCol
+		if (sc > ec) {
+			sc = endCol
+			ec = startCol
+		}
+		if (range.startCol > sc) {
+			range.startCol = sc
+		}
+		if (range.endCol < ec) {
+			range.endCol = ec
+		}
+		for (let c = sc; c <= ec; c++) {
+			if (cells[c] === undefined) {
+				cells[c] = []
+			}
+			for (let r = sr; r <= er; r++) {
+				cells[c].push(r)
+			}
+		}
+	}
+	const afterData = []
+	for (let row = range.startRow; row <= range.endRow; ++row) {
+		afterData.push(data[row].slice(range.startCol, range.endCol + 1))
+	}
+	for (const col of Object.keys(cells)) {
+		let rows = cells[col]
+		if (rows.length === 1) {
+			continue
+		}
+		rows.sort()
+		const firstRow = rows.shift()
+		const val = data[firstRow][col]
+		for (const row of rows) {
+			afterData[row - range.startRow][col - range.startCol] = val
+		}
+	}
+	hot.populateFromArray(range.startRow, range.startCol, afterData, range.endRow, range.endCol, "Duplicate!")
+}
+
 const InputSheet = forwardRef(function InputSheet(props, ref) {
 	const hotTableRef = useRef(null)
 	let callbacks = {}
@@ -530,9 +595,13 @@ const InputSheet = forwardRef(function InputSheet(props, ref) {
 				if (source !== "UndoRedo.undo"
 					&& source !== "UndoRedo.redo"
 					&& source !== "Sort!"
+					&& source !== "Duplicate!"
 				) {
 					const setTime = (value, index) => {
 						const paddingZeo = v => `00${v}`.slice(-2)
+						if(typeof value !== 'string'){
+							return
+						}
 						let m = value.match(/^([0-9]+):([0-9]+)$/)
 						if (m && m.length > 1) {
 							value = `${paddingZeo(m[1])}:${paddingZeo(m[2])}`
@@ -777,6 +846,11 @@ const InputSheet = forwardRef(function InputSheet(props, ref) {
 			const hot = hotTableRef.current.hotInstance
 			hot.deselectCell()
 			callbacks.setSearchFocus()
+		} else if (e.keyCode === Handsontable.helper.KEY_CODES.D
+			&& !e.altKey && !e.shiftKey && e.ctrlKey) {
+			e.stopImmediatePropagation()
+			e.preventDefault()
+			dupData(hotTableRef.current.hotInstance)
 		}
 	}, [])
 	return (

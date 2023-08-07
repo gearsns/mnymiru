@@ -86,11 +86,14 @@ const Home = _ => {
     if (store.database && store.database.fileHandle) {
       if (store.database.dirHandle) {
         setFilename(`${store.database.dirHandle.name}/${store.database.fileHandle.name}`)
+        document.title = `${store.database.dirHandle.name}/${store.database.fileHandle.name} - MnyMiru`
       } else {
         setFilename(store.database.fileHandle.name)
+        document.title = `${store.database.fileHandle.name} - MnyMiru`
       }
     } else {
-      setFilename("")
+      setFilename("...")
+      document.title = "MnyMiru"
     }
   }, [store.database, store.database?.fileHandle])
   //
@@ -104,7 +107,7 @@ const Home = _ => {
       <MainMenu ref={mainMenuRef}></MainMenu>
       <Header className="title_header">
         <Button type='text' onClick={showDrawer}><MenuOutlined /></Button>
-        <img src={logoimage} /> <h1 className='title'>MnyMiru</h1>1.1
+        <img src={logoimage} /> <h1 className='title'>MnyMiru</h1>1.2
         [{filename}]
         <span className="source_link"><a href="https://github.com/gearsns/mnymiru"><GithubOutlined /></a></span>
       </Header>
