@@ -670,17 +670,17 @@ const InputSheet = forwardRef(function InputSheet(props, ref) {
 									copySameItems([MyColumn.Day, MyColumn.Shop, MyColumn.Account])
 									break
 								case MyColumn.Content: // 内訳
-									copySameItems([MyColumn.Day, MyColumn.Shop, MyColumn.Account])
+									copySameItems([MyColumn.Day, MyColumn.Shop, MyColumn.Time, MyColumn.Account])
 									break
 								case MyColumn.Expend:
 								case MyColumn.Income:
 								case MyColumn.Num:
 									toNumber(index)
-									copySameItems([MyColumn.Day, MyColumn.Shop, MyColumn.Account])
+									copySameItems([MyColumn.Day, MyColumn.Shop, MyColumn.Time, MyColumn.Account])
 									setTotal(afterRowCur, row)
 									break
 								case MyColumn.Account:
-									copySameItems([MyColumn.Day, MyColumn.Shop])
+									copySameItems([MyColumn.Day, MyColumn.Shop, MyColumn.Time])
 									break
 								case MyColumn.Total:
 									toNumber(index)
