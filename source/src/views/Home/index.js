@@ -107,7 +107,7 @@ const Home = _ => {
       <MainMenu ref={mainMenuRef}></MainMenu>
       <Header className="title_header">
         <Button type='text' onClick={showDrawer}><MenuOutlined /></Button>
-        <img src={logoimage} /> <h1 className='title'>MnyMiru</h1>1.2
+        <img src={logoimage} /> <h1 className='title'>MnyMiru</h1>1.3
         [{filename}]
         <span className="source_link"><a href="https://github.com/gearsns/mnymiru"><GithubOutlined /></a></span>
       </Header>

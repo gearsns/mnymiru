@@ -599,7 +599,7 @@ const InputSheet = forwardRef(function InputSheet(props, ref) {
 				) {
 					const setTime = (value, index) => {
 						const paddingZeo = v => `00${v}`.slice(-2)
-						if(typeof value !== 'string'){
+						if (typeof value !== 'string') {
 							return
 						}
 						let m = value.match(/^([0-9]+):([0-9]+)$/)
@@ -627,6 +627,13 @@ const InputSheet = forwardRef(function InputSheet(props, ref) {
 							afterData[changes[index][0]][MyColumn.Time] = value
 						}
 					}
+					const toNumber = index => {
+						const change = changes[index]
+						if (typeof change[3] === "string") {
+							change[3] = change[3].replace(/[\\, ]/g, '')
+							afterData[change[0]][change[1]] = change[3]
+						}
+					}
 					changes?.forEach(([row, prop, oldValue, newValue], index) => {
 						const afterRowCur = afterData[row]
 						if (row == 0) {
@@ -634,10 +641,14 @@ const InputSheet = forwardRef(function InputSheet(props, ref) {
 								case MyColumn.Expend:
 								case MyColumn.Income:
 								case MyColumn.Num:
+									toNumber(index)
 									setTotal(afterRowCur, row)
 									break
 								case MyColumn.Time:
 									setTime(newValue, index)
+									break
+								case MyColumn.Total:
+									toNumber(index)
 									break
 							}
 						} else if (row > 0) {
@@ -659,16 +670,20 @@ const InputSheet = forwardRef(function InputSheet(props, ref) {
 									copySameItems([MyColumn.Day, MyColumn.Shop, MyColumn.Account])
 									break
 								case MyColumn.Content: // 内訳
-									copySameItems([MyColumn.Day, MyColumn.Shop, MyColumn.Time, MyColumn.Account])
+									copySameItems([MyColumn.Day, MyColumn.Shop, MyColumn.Account])
 									break
 								case MyColumn.Expend:
 								case MyColumn.Income:
 								case MyColumn.Num:
-									copySameItems([MyColumn.Day, MyColumn.Shop, MyColumn.Time, MyColumn.Account])
+									toNumber(index)
+									copySameItems([MyColumn.Day, MyColumn.Shop, MyColumn.Account])
 									setTotal(afterRowCur, row)
 									break
 								case MyColumn.Account:
-									copySameItems([MyColumn.Day, MyColumn.Shop, MyColumn.Time])
+									copySameItems([MyColumn.Day, MyColumn.Shop])
+									break
+								case MyColumn.Total:
+									toNumber(index)
 									break
 								default:
 									break
@@ -739,7 +754,7 @@ const InputSheet = forwardRef(function InputSheet(props, ref) {
 					}
 				}
 			}
-			//
+			// 同じ項目を編集した際には、最後に変更した値を設定する
 			if (changes) {
 				const changesKey = {}
 				for (const change of changes) {
@@ -747,9 +762,9 @@ const InputSheet = forwardRef(function InputSheet(props, ref) {
 					const col = change[1]
 					const key = `${row}x${col}`
 					if (changesKey[key]) {
-						changesKey[key][3] = change[3]
+						changesKey[key][3] = change[3] // 最後に変更した値を設定する
 					} else {
-						changesKey[key] = change
+						changesKey[key] = change // 行x列で見つかった最初の項目
 					}
 				}
 			}
