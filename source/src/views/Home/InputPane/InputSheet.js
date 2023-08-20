@@ -463,15 +463,15 @@ const InputSheet = forwardRef(function InputSheet(props, ref) {
 					if (c !== 0) {
 						return c
 					}
-					c = (x[MyColumn.Time] || '').localeCompare(y[MyColumn.Time] || '')
+					c = (x[MyColumn.Time] || '').toString().localeCompare((y[MyColumn.Time] || '').toString())
 					if (c !== 0) {
 						return c
 					}
-					c = (x[MyColumn.Shop] || '').localeCompare(y[MyColumn.Shop] || '')
+					c = (x[MyColumn.Shop] || '').toString().localeCompare((y[MyColumn.Shop] || '').toString())
 					if (c !== 0) {
 						return c
 					}
-					c = (x[MyColumn.Account] || '').localeCompare(y[MyColumn.Account] || '')
+					c = (x[MyColumn.Account] || '').toString().localeCompare((y[MyColumn.Account] || '').toString())
 					if (c !== 0) {
 						return c
 					}
@@ -765,6 +765,14 @@ const InputSheet = forwardRef(function InputSheet(props, ref) {
 						changesKey[key][3] = change[3] // 最後に変更した値を設定する
 					} else {
 						changesKey[key] = change // 行x列で見つかった最初の項目
+					}
+					// Objectとかが貼り付けられると編集エラーになるのでここで「空白」に変換する
+					if (change[3] !== null
+						&& change[3] !== undefined
+						&& typeof change[3] !== "string"
+						&& typeof change[3] !== "number"
+					) {
+						change[3] = ""
 					}
 				}
 			}
