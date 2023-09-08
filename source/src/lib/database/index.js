@@ -398,6 +398,64 @@ export default class Database {
 		}
 		return data
 	}
+	topNExpend(yearmonth, account) {
+		if (!this.db) {
+			return []
+		}
+		yearmonth = yearmonth.slice(0, 4) + "%"
+		let data = []
+		if (account) {
+			for (const tret of this.db.exec(`SELECT
+			year_month,day,shop_name,time,item_name,detail,expenses,quantity,incomes,total,account,note,id,line_no
+			FROM 
+			(
+			SELECT 
+			cash.*,
+			row_number() over (partition by year_month order by total asc) as rank
+			FROM cash
+			WHERE 
+			 year_month LIKE :year_month
+			 AND note NOT LIKE '%#除外%'
+			 AND account = :account
+			)
+			WHERE 
+			 rank <= 5
+			ORDER BY
+			 year_month, total
+			`, { ':year_month': yearmonth, ':account': account })) {
+				for (const item of tret.values) {
+					const [year_month, day, shop_name, time, item_name, detail, expenses, quantity, incomes, total, account, note, id, line_no] = item
+					data.push([year_month + ("0" + (day || "")).slice(-2), shop_name, time, item_name, detail, expenses, quantity, incomes, total, account, note, id, line_no])
+				}
+			}
+		}
+		else
+		{
+			for (const tret of this.db.exec(`SELECT
+			year_month,day,shop_name,time,item_name,detail,expenses,quantity,incomes,total,account,note,id,line_no
+			FROM 
+			(
+			SELECT 
+			cash.*,
+			row_number() over (partition by year_month order by total asc) as rank
+			FROM cash
+			WHERE 
+			 year_month LIKE :year_month
+			 AND note NOT LIKE '%#除外%'
+			)
+			WHERE 
+			 rank <= 5
+			ORDER BY
+			 year_month, total
+			`, { ':year_month': yearmonth })) {
+				for (const item of tret.values) {
+					const [year_month, day, shop_name, time, item_name, detail, expenses, quantity, incomes, total, account, note, id, line_no] = item
+					data.push([year_month + ("0" + (day || "")).slice(-2), shop_name, time, item_name, detail, expenses, quantity, incomes, total, account, note, id, line_no])
+				}
+			}
+		}
+		return data
+	}
 	monthTotalList(year, account) {
 		if (!this.db) {
 			return []

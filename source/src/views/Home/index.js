@@ -6,8 +6,9 @@ import "../../assets/rc-dock.css"
 import { InuptPaneContext } from './InputPane'
 import { SearchPaneContext } from './SearchPane'
 import { ChartPaneContent } from './ChartPane'
+import { TopExpendPaneContext } from './TopExpendPane'
 import {
-  MenuOutlined, GithubOutlined,
+  MenuOutlined, GithubOutlined, OrderedListOutlined,
   EditOutlined, SearchOutlined, BarChartOutlined,
 } from '@ant-design/icons'
 import Database from '../../lib/database'
@@ -42,6 +43,11 @@ const defaultLayout = {
           {
             id: 'id_chart', title: <><BarChartOutlined /> グラフ</>, content: (
               <ChartPaneContent />
+            ), cached: true
+          },
+          {
+            id: 'id_topexpend', title: <><OrderedListOutlined /> 支出上位</>, content: (
+              <TopExpendPaneContext />
             ), cached: true
           },
         ]
@@ -107,7 +113,7 @@ const Home = _ => {
       <MainMenu ref={mainMenuRef}></MainMenu>
       <Header className="title_header">
         <Button type='text' onClick={showDrawer}><MenuOutlined /></Button>
-        <img src={logoimage} /> <h1 className='title'>MnyMiru</h1>1.4
+        <img src={logoimage} /> <h1 className='title'>MnyMiru</h1>1.5
         [{filename}]
         <span className="source_link"><a href="https://github.com/gearsns/mnymiru"><GithubOutlined /></a></span>
       </Header>
