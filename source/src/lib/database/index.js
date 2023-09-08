@@ -414,7 +414,7 @@ export default class Database {
 			row_number() over (partition by year_month order by total asc) as rank
 			FROM cash
 			WHERE 
-			 year_month LIKE :year_month
+			 year_month LIKE :year_month and day>0
 			 AND note NOT LIKE '%#除外%'
 			 AND account = :account
 			)
@@ -440,7 +440,7 @@ export default class Database {
 			row_number() over (partition by year_month order by total asc) as rank
 			FROM cash
 			WHERE 
-			 year_month LIKE :year_month
+			 year_month LIKE :year_month and day>0
 			 AND note NOT LIKE '%#除外%'
 			)
 			WHERE 
