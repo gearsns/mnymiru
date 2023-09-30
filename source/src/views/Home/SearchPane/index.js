@@ -24,7 +24,10 @@ const SearchPaneBase = ({ searchSheetRef, searchSheet }) => {
   }
   //
   useEffect(_ => {
-    searchSheetRef.current?.setCallback("setStatus", text => setStatusText(text))
+    if (searchSheetRef && searchSheetRef.current) {
+      const hot = searchSheetRef.current
+      hot.setCallback("setStatus", text => setStatusText(text))
+    }
   }, [])
   // Handsontableのサイズ調整
   const handleResize = _ => {

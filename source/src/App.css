@@ -250,10 +250,13 @@ h1.title {
 {
   width: 400px;
 }
-.select_total
+.shop_total
 {
   position: absolute;
   right: 10px;
+}
+.select_total
+{
 }
 .source_link
 {

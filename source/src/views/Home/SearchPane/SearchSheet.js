@@ -107,6 +107,18 @@ const SearchSheet = forwardRef(function DataSheet(props, ref) {
 	const handleBeforeKeyDown = useCallback(e => {
 		searchKeyEvent(e, hotTableRef, searchInfo)
 	}, [])
+	const handleAfterSelectionEnd = useCallback((row, column, row2, column2, selectionLayerLevel) => {
+		if (callbacks.setStatus) {
+			const hot = hotTableRef.current.hotInstance
+			const customSettings = hot.getSettings().customSettings
+			const data = customSettings.data
+			if (row === row2 && column === column2){
+				callbacks.setStatus(<span className="select_total">{data[row][column]}</span>)
+			} else {
+				callbacks.setStatus("")
+			}
+		}
+	}, [])
 	const handleCellDblClick = useCallback((event, coords, TD) => {
 		if (event.button === 0 && event.detail === 2) {
 			const row = coords.row
@@ -151,6 +163,7 @@ const SearchSheet = forwardRef(function DataSheet(props, ref) {
 				className="mny_hottable"
 				beforeColumnResize={handleBeforeColumnResize}
 				beforeKeyDown={handleBeforeKeyDown}
+				afterSelectionEnd={handleAfterSelectionEnd}
 				afterOnCellMouseDown={handleCellDblClick}
 			/>
 		</div>

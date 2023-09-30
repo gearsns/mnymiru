@@ -41,7 +41,10 @@ const TopExpendPaneBase = ({ topExpendSheetRef, topExpendSheet }) => {
   }
   //
   useEffect(_ => {
-    topExpendSheetRef.current?.setCallback("setStatus", text => setStatusText(text))
+    if (topExpendSheetRef && topExpendSheetRef.current) {
+      const hot = topExpendSheetRef.current
+      hot.setCallback("setStatus", text => setStatusText(text))
+    }
   }, [])
   // Handsontableのサイズ調整
   const handleResize = _ => {

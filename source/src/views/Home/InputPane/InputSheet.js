@@ -849,13 +849,26 @@ const InputSheet = forwardRef(function InputSheet(props, ref) {
 						}
 					}
 				}
-				if (selectionTotal !== 0 && selectionTotal !== total) {
+				if (row === row2 && column === column2){
 					callbacks.setStatus(<>
-						<span>{data[dispRow][MyColumn.Shop] || ""}：{total.toLocaleString()}</span>
+						<span className="select_total">{data[row][column]}</span>
+						<span className="shop_total">{data[dispRow][MyColumn.Shop] || ""}：{total.toLocaleString()}</span>
+					</>)
+				} else if (selectionTotal !== 0 && selectionTotal !== total) {
+					callbacks.setStatus(<>
 						<span className="select_total">選択範囲の合計：{selectionTotal.toLocaleString()}</span>
+						<span className="shop_total">{data[dispRow][MyColumn.Shop] || ""}：{total.toLocaleString()}</span>
 					</>)
 				} else {
-					callbacks.setStatus(`${data[dispRow][MyColumn.Shop] || ""}：${total.toLocaleString()}`)
+					callbacks.setStatus(<>
+						<span className="shop_total">{data[dispRow][MyColumn.Shop] || ""}：{total.toLocaleString()}</span>
+					</>)
+				}
+			} else {
+				if (row === row2 && column === column2){
+					callbacks.setStatus(<span className="select_total">{data[row][column]}</span>)
+				} else {
+					callbacks.setStatus("")
 				}
 			}
 		}
