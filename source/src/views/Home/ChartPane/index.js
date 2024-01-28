@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useLayoutEffect, forwardRef, useState } from "react"
 import { Select, Button, Layout } from 'antd'
 import { useStoreContext } from '../../../store'
-import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, Label } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, Label, ReferenceLine } from "recharts";
 import { ReloadOutlined } from '@ant-design/icons'
 
 const { Header, Content, Footer } = Layout
@@ -28,6 +28,8 @@ const ChartPaneContent = forwardRef(function ChartPaneContent(props, ref) {
       , { month: 7 }, { month: 8 }, { month: 9 }, { month: 10 }, { month: 11 }, { month: 12 }
     ], labels: []
   })
+  const [monthAverage, setMonthAverage] = useState(0)
+  const [monthTotal, setMonthTotal] = useState(0)
   const store = useStoreContext()
   const refContent = useRef()
   const [barProps, setBarProps] = useState(
@@ -51,11 +53,27 @@ const ChartPaneContent = forwardRef(function ChartPaneContent(props, ref) {
   }
 
   const selectBar = e => {
-    setBarProps({
+    const t = {
       ...barProps,
       [e.dataKey]: !barProps[e.dataKey],
       hover: null
-    })
+    }
+    setBarProps(t)
+    let monthKey = {}
+    let total = 0
+    for(const label of chartData.labels){
+      if(t[label.key]){
+        continue
+      }
+      for(const item of chartData.values){
+        if(item[label.key]){
+          monthKey[item['month']] = true
+          total += item[label.key]
+        }
+      }
+    }
+    setMonthAverage(total / Object.keys(monthKey).length)
+    setMonthTotal(total)
   }
 
   const handleResize = _ => {
@@ -108,11 +126,19 @@ const ChartPaneContent = forwardRef(function ChartPaneContent(props, ref) {
       { month: 1 }, { month: 2 }, { month: 3 }, { month: 4 }, { month: 5 }, { month: 6 }
       , { month: 7 }, { month: 8 }, { month: 9 }, { month: 10 }, { month: 11 }, { month: 12 }
     ]
+    let total = 0
+    let monthKey = {}
     const item_keys = {}
     for (const item of data) {
       const month = Math.trunc(item[0]) % 100
-      values[month - 1][item[1]] = -item[2]
-      item_keys[item[1]] = true
+      let name = item[1]
+      if(name == null || name.length == 0){
+        name = "[未指定]"
+      }
+      values[month - 1][name] = -item[2]
+      total -= item[2]
+      item_keys[name] = true
+      monthKey[month] = true
     }
     let index = 0
     const labels = []
@@ -127,6 +153,8 @@ const ChartPaneContent = forwardRef(function ChartPaneContent(props, ref) {
       }
     }
     setChartData({ values: values, labels: labels })
+    setMonthAverage(total / Object.keys(monthKey).length)
+    setMonthTotal(total)
   }
   const handleUpdateChart = _ => {
     const db = store.database
@@ -181,6 +209,12 @@ const ChartPaneContent = forwardRef(function ChartPaneContent(props, ref) {
               <Label value={inputData.oyLabel} position="insideTopLeft" dy={-10} dx={20} />
             </YAxis>
             <Tooltip formatter={formatter} />
+            <ReferenceLine
+              x={monthAverage}
+              label={{ value: `平均:${monthAverage.toLocaleString()}`, position: "top" }}
+              stroke="red"
+              strokeDasharray="4 4"
+            />
             <Legend
               layout="vertical"
               align="right"
@@ -206,7 +240,9 @@ const ChartPaneContent = forwardRef(function ChartPaneContent(props, ref) {
             ))}
           </BarChart>
         </Content>
-        <Footer className="footer" />
+        <Footer className="footer">
+          合計：{monthTotal.toLocaleString()}
+        </Footer>
       </Layout>
     </div>
   )
