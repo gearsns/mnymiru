@@ -15,7 +15,7 @@ import Database from '../../lib/database'
 import { mnymiru_state_db } from '../../store/db'
 import { useStoreContext, useDispatchStoreContext } from '../../store'
 import { dataManager } from "../../DataManager"
-import { MainMenu } from "./MainManu"
+import { MainMenu } from "./MainMenu"
 
 const { Header, Content } = Layout
 
