@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useLayoutEffect, useState, forwardRef, useMemo } from "react"
-import { Input, Button, DatePicker, Layout } from 'antd'
-import { LeftOutlined, RightOutlined, SortAscendingOutlined } from '@ant-design/icons'
+import { Input, Button, DatePicker, Layout, message } from 'antd'
+import { LeftOutlined, RightOutlined, SaveOutlined, SortAscendingOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import { useStoreContext, useDispatchStoreContext } from '../../../store'
 import { InputSheet } from "./InputSheet"
@@ -52,6 +52,28 @@ const InputPaneBase = ({ inputSheetRef, inputSheet, curDate, setCurDate }) => {
   const moveThisMonth = _ => setCurDate(dayjs(Date.now()))
   const moveNextMonth = _ => setCurDate(d => d.add(1, 'M'))
   const handleSearch = value => inputSheetRef.current?.search(value)
+  const handleSaveDB = async _ => {
+		if (!store.database) {
+			return
+		}
+		try {
+			let database
+			if (store.database.fileHandle) {
+				database = await dataManager.save()
+			} else {
+				database = await dataManager.saveAs()
+			}
+			if (database) {
+				await dataManager.setRcently(database)
+				storeDispatch({ type: "RefreshDatabase", store: database })
+				message.success(`ファイルを保存しました`)
+			}
+		} catch (err) {
+			if (err.name !== "AbortError") {
+				message.error(`保存に失敗しました。 （${err}）`)
+			}
+		}
+  }
   //
   const setSearchFocus = _ => {
     if (refMain && refMain.current) {
@@ -146,6 +168,7 @@ const InputPaneBase = ({ inputSheetRef, inputSheet, curDate, setCurDate }) => {
   return (
     <Layout ref={refMain} className="tab_pane_layout">
       <Header className="header">
+        <Button onClick={handleSaveDB}><SaveOutlined /> 保存</Button>
         <Button onClick={handleSort}><SortAscendingOutlined /> 並べ替え</Button>
         <Button onClick={movePrevMonth}><LeftOutlined /></Button>
         <Button onClick={moveThisMonth}>今月</Button>
