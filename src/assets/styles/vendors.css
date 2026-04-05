@@ -1,0 +1,286 @@
+@import "rc-dock/dist/rc-dock.css";
+@import "../../../../lib/myhandsontable/dist/myhandsontable.css";
+
+/* ライブラリの見た目を微調整したい場合はここに書く */
+.dock-panel {
+  border: 1px solid #ddd;
+}
+
+.handsontableInput {
+  z-index: 1000 !important;
+  position: relative !important;
+}
+
+.handsontableInputHolder {
+  z-index: 1000 !important;
+}
+
+.readonly_table .handsontableInputHolder {
+  z-index: -1 !important;
+}
+
+.cell_sun {
+  color: coral;
+  text-align: right;
+}
+
+.cell_sat {
+  color: cornflowerblue;
+  text-align: right;
+}
+
+.cell_mon,
+.cell_tue,
+.cell_wed,
+.cell_thu,
+.cell_fri {
+  text-align: right;
+}
+
+.cell_day_error {
+  position: relative;
+  color: red;
+}
+
+.cell_day_error::after {
+  position: absolute;
+  content: "";
+  top: 1px;
+  right: 2px;
+  width: 3.5px;
+  height: 3.5px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border: 1px solid whitesmoke;
+  background: red;
+  transform: translateZ(0) scale(1.0, 1.0) rotate(45deg);
+}
+
+.cell_shop {
+  text-align: left;
+}
+
+.cell_time {
+  text-align: left;
+}
+
+.cell_day_same,
+.cell_shop_same,
+.cell_time_same {
+  position: relative;
+  color: rgba(0, 0, 0, 0.2);
+}
+
+.cell_day_same.cell_sat {
+  color: rgba(100, 148, 237, 0.2);
+}
+.cell_day_same.cell_sun {
+  color: rgba(255, 127, 80, 0.2);
+}
+
+.cell_shop_same::after {
+  width: calc(100% - 16px);
+}
+
+.cell_positive_num {
+  color: cornflowerblue;
+  text-align: right;
+}
+
+.cell_negative_num {
+  color: coral;
+  text-align: right;
+}
+
+.cell_row_top {
+  border-bottom-style: hidden !important;
+}
+
+.cell_row_body {
+  border-bottom-style: hidden !important;
+}
+
+.handsontable table.htCore td {
+  white-space: pre;
+}
+
+.handsontable.autocompleteEditor {
+  border: 1px solid #AAAAAA;
+  box-shadow: 10px 10px 15px #AAAAAA;
+  background-color: white;
+  min-width: 200px;
+}
+
+.handsontable.autocompleteEditor.handsontable {
+  padding-right: 0px;
+}
+
+.handsontable.listbox .ht_master table {
+  border: none;
+}
+
+.autocompleteEditor .wtHolder {
+  min-width: 200px;
+}
+
+.handsontableEditor.autocompleteEditor.handsontable.listbox {
+  min-height: 30px;
+}
+
+.ht_master.handsontable {
+  user-select: none;
+}
+
+.autocompleteEditor .htCore {
+  border: none !important;
+  -webkit-box-shadow: none !important;
+  box-shadow: none !important;
+  min-width: 180px !important;
+}
+
+.mny_hottable .htDimmed {
+  color: #000;
+}
+
+.autocompleteEditor .ht_clone_top,
+.autocompleteEditor .ht_clone_left {
+  display: none;
+}
+
+.handsontable .autocompleteEditor {
+  position: fixed !important;
+}
+
+.htAutocomplete {
+  position: relative;
+}
+
+.htAutocompleteArrow {
+  position: absolute;
+  right: 0;
+  background: white;
+}
+
+.area .htAutocompleteArrow {
+  background: #e8edff;
+}
+
+.cell_num_error {
+  position: relative;
+  color: red;
+}
+
+.cell_num_error::after {
+  position: absolute;
+  content: "";
+  top: 1px;
+  right: 2px;
+  width: 3.5px;
+  height: 3.5px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border: 1px solid whitesmoke;
+  background: red;
+  transform: translateZ(0) scale(1.0, 1.0) rotate(45deg);
+}
+
+.header {
+  color: #fff;
+  background-color: #eee;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  width: 100%;
+  padding: 0 10px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+}
+
+.footer {
+  border-top: 1px solid #e8e8e8;
+  flex-shrink: 0;
+  font-size: 14px;
+  height: 40px;
+  left: 0;
+  bottom: 0;
+  padding: 8px;
+  margin: 0;
+  width: 100%;
+  background-color: white;
+  z-index: 1;
+}
+
+h1.title {
+  margin-left: 10px;
+  margin-bottom: 14px;
+  font-size: 25px;
+}
+
+.title_header {
+  color: '#666';
+  background-color: #eee;
+  border-top: 1px solid #e8e8e8;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  width: 100%;
+  padding: 0 4px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+}
+
+.mny_hottable {
+  width: 100%;
+  height: 100%;
+}
+
+.tab_pane {
+  height: 100%;
+}
+
+.tab_pane_layout {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.tab_pane_content {
+  flex: auto;
+  min-height: 0;
+  /* これが重要：Flexアイテムがコンテンツより小さくなることを許可する */
+  overflow: hidden;
+}
+
+/* Ant DesignのSpinをコンテナいっぱいに広げる */
+.tab_pane_content .ant-spin-nested-loading,
+.tab_pane_content .ant-spin-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.tab_pane_content_chart {
+  height: calc(100% - 80px);
+  overflow: auto;
+}
+
+.search_box {
+  width: 304px;
+}
+
+.select_box {
+  width: 400px;
+}
+
+.shop_total {
+  position: absolute;
+  right: 10px;
+}
+
+.source_link {
+  position: absolute;
+  right: 10px;
+  font-size: 25px;
+}
