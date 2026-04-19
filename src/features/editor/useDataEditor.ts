@@ -5,7 +5,7 @@ import { useFileAction } from "../../hooks/useFileAction";
 import type { HotTable } from "react-myhandsontable";
 import { sqliteClient } from "../../services/sqliteClient";
 import { useHotSettings } from "./useHotSettings";
-import { duplicateData, searchTableData, setConfgAll, sortTableData, getNextSheetId, getSheetIdFromDate } from "./utils";
+import { duplicateData, searchTableData, setConfgAll, sortTableData, getNextSheetId, getSheetIdFromDate, createChanges } from "./utils";
 import { useHandsontableResize } from "../common/useHandsontableResize";
 import { columns } from "./renderers";
 import { useAutoSync } from "./useAutoSync";
@@ -156,8 +156,7 @@ export const useDataEditor = (
         if (!hot) return;
         const value = lastQueryRef.current;
         if (!value) return;
-        const data = hot.getData();
-
+        const data = hot.getSourceData();
         const result = searchTableData(value, data, hot.getSelected(), hot.countCols(), direction);
         if (result) {
             hot.selectCell(result.row, result.col);
@@ -175,9 +174,12 @@ export const useDataEditor = (
     const handleSort = useCallback(() => {
         const hot = hotRef.current?.hotInstance;
         if (!hot) return;
-        const data = hot.getData();
+        const data = hot.getSourceData();
         const afterData = sortTableData(data);
-        hot.populateFromArray(0, 0, afterData, void 0, void 0, 'Sort!');
+        const changes = createChanges(data, afterData);
+        if (changes.length > 0){
+            hot.setDataAtRowProp(changes, 'Sort!');
+        }
     }, [hotRef]);
 
     const state = useMemo(() => ({

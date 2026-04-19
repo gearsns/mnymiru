@@ -1,4 +1,4 @@
-import type { TableData } from "../../../db/types";
+import type { TableData, TableRow } from "../../../db/types";
 import { MyColumnIndexToName } from "../constants";
 
 export const searchTableData = (
@@ -62,6 +62,38 @@ export const sortTableData = (data: TableData) => {
     });
     // 3. データの書き戻し
     return mapped.map(v => v.row);
+};
+
+/**
+ * 元データと新データの差分を抽出し、setDataAtRowProp 形式の配列を返す
+ * @param sourceData 現在のHandsontable内のデータ
+ * @param newData 比較対象となる新しいデータ
+ */
+export const createChanges = (sourceData: TableData, newData: TableData): [number, string | number, unknown][] => {
+  const changes: [number, string | number, unknown][] = [];
+
+  // Table型のキー一覧（比較対象のプロパティ）
+  const keys: (keyof TableRow)[] = [
+    'day', 'line_no', 'shop_name', 'time', 'item_name', 
+    'detail', 'expenses', 'quantity', 'incomes', 'total', 
+    'account', 'note'
+  ];
+
+  newData.forEach((newRow, rowIdx) => {
+    const sourceRow = sourceData[rowIdx];
+
+    // 行が存在しない（新規行など）場合はスキップ、または必要に応じて処理
+    if (!sourceRow) return;
+
+    keys.forEach(key => {
+      // 厳密等価演算子で比較（値が異なる場合のみ抽出）
+      if (sourceRow[key] !== newRow[key]) {
+        changes.push([rowIdx, key, newRow[key]]);
+      }
+    });
+  });
+
+  return changes;
 };
 
 export const duplicateData = (data: TableData, selected: [startRow: number, startCol: number, endRow: number, endCol: number][])
