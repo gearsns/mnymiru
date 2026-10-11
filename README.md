@@ -14,6 +14,8 @@ MnyMiruは支出を管理するWebアプリです。
  ※開始直後は、ブラウザ内にデータを保存されます。
  「保存」を行うことで、ローカルに保存しておくことができるようになります。
 
+- AIによるレシートからのデータ取得
+
 # 開始
 
 以下のURLから最新のMnyMiruをご使用いただけます。
@@ -25,21 +27,16 @@ MnyMiruは支出を管理するWebアプリです。
 1. 入力
 	1. 「入力」タブを選択し入力する月を設定
  
- 	![](imamge/input_select_month.png)
-
 	2. 支出を記入
 
 		「日付」「店名」「時間」「項目」「現金/口座」が同じ場合、
 		自動で、一つのレシートととして判定されます。  
 
-		![](image/input_receipt.png)
 		(画面下にレシートごとの合計が表示)
 
 	3. サジェスト
 
 		「店名」や「内訳」等は、過去の入力から自動でサジェストされます。
-
-		![](image/input_suggest.png)
 
 	4. 並べ替え
 
@@ -50,15 +47,12 @@ MnyMiruは支出を管理するWebアプリです。
 
 	1. 「検索」タブで検索したい単語を入力して「Search」ボタンを押下
 
-		![](imamge/search_result.png)
-
 	2. 検索結果をダブルクリックすると、該当の月に移動します。
 
 3. グラフ
 
 	1. 「グラフ」タブを選択して「更新」ボタンを押下します。
 
-		![](image/chart.png)
 		(「入力」タブと同じ年の支出集計が表示されます)
 
 4. ファイル
@@ -84,7 +78,5 @@ MnyMiruは支出を管理するWebアプリです。
 
 # 依存するライブラリ
 
-[Ant Design](https://ant.design)
 [dexie](https://dexie.org)
-[handsontable 6.2.2](https://github.com/handsontable/handsontable)
 [sql.js](https://github.com/sql-js/sql.js/)

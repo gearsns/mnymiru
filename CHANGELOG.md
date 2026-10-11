@@ -1,5 +1,10 @@
 # MnyMiru Changelog
 
+## [2.0]
+
+- レシート入力機能の実装
+- ReactからSolidJSに変更
+
 ## [1.8]
 
 - 保存ボタンを追加
