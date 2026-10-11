@@ -117,5 +117,7 @@ export function dropdownItemStyle(theme: GridTheme, highlighted: boolean): JSX.C
     "white-space": "nowrap",
     color: theme.textColor,
     background: highlighted ? theme.headerActiveBackground : "transparent",
+    "max-width": "30rem",
+    "overflow-x": "hidden"
   };
 }

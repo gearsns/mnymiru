@@ -24,7 +24,12 @@ import { updateRelatedData } from "./utils/updateData";
 import { createShortcuts } from "./utils/shortcuts";
 
 let migemo: Migemo;
-migemo = await getMigemo()!;
+async function loadMigemo() {
+    if (!migemo) {
+        migemo = await getMigemo()!;
+    }
+}
+loadMigemo();
 
 export function Editor() {
     let store: GridStore | undefined;

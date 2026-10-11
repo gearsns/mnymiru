@@ -33,15 +33,25 @@ export function filterResults(
     regex: RegExp,
     limit: number = 20
 ): DropdownOption[] {
-    const result = new Set<DropdownOption>();
+    const result: DropdownOption[] = [];
+    const seenValues = new Set<string>();
 
     const filter = (item: DropdownOption) => {
-        if (result.size >= limit) return;
-        if (item && item.value && regex.test(String(item.value))) result.add(item);
+        if (result.length >= limit) return;
+        if (item && item.value != null) {
+            const valStr = String(item.value).trimEnd();
+            if (regex.test(valStr)) {
+                // value がまだ追加されていなければ結果に含める
+                if (!seenValues.has(valStr)) {
+                    seenValues.add(valStr);
+                    result.push({ ...item, value: valStr, label: String(item.label || valStr).trim() });
+                }
+            }
+        }
     };
 
     curItems.forEach((item) => filter(item));
     dbItems.forEach(item => filter(item));
 
-    return Array.from(result);
+    return result;
 }
