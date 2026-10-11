@@ -208,7 +208,7 @@ export function Editor() {
                     dropdownFilter={filterSource}
                     onSelectionChange={(range: SelectionRange) => {
                         setStatus(calculateRange(range, store!.getCell));
-                        setSthopTotal(calculateShopTotal(range.c1, store!.rows, store!.getCell));
+                        setSthopTotal(calculateShopTotal(range.r1, store!.rows, store!.getCell));
                     }}
                     onChange={handleChange}
                     getCellFormat={(row, col, { value, getCell }) => getCellFormat(row, col, value, getCell, currentDate())}
