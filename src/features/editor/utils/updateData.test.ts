@@ -25,7 +25,7 @@ describe("updateRelatedData", () => {
 
     it("expenses, quantity, incomes が変更されたとき、total が正しく計算されること", async () => {
         // 初期セルのモック（expenses: 100, quantity: 2, incomes: 500 を想定）
-        getCellMock.mockImplementation((r, c) => {
+        getCellMock.mockImplementation((_r, c) => {
             if (c === ItemIndex.expenses) return 100;
             if (c === ItemIndex.quantity) return 2;
             if (c === ItemIndex.incomes) return 500;
@@ -48,7 +48,7 @@ describe("updateRelatedData", () => {
     });
 
     it("quantity が未設定または0の場合、1として total が計算されること", async () => {
-        getCellMock.mockImplementation((r, c) => {
+        getCellMock.mockImplementation((_r, c) => {
             if (c === ItemIndex.expenses) return 150;
             if (c === ItemIndex.quantity) return 0; // または null
             if (c === ItemIndex.incomes) return 0;
