@@ -17,12 +17,12 @@ interface WorkerResponse {
 
 let worker: Worker | null = null;
 export const getWorker = () => {
-  if (!worker) {
-    // 呼び出された瞬間に初めて new する
-    worker = new Worker(new URL("../context/sqlite.worker.ts", import.meta.url), { type: 'module' });
-    worker.addEventListener('message', handleMessage);
-  }
-  return worker;
+    if (!worker) {
+        // 呼び出された瞬間に初めて new する
+        worker = new Worker(new URL("../context/sqlite.worker.ts", import.meta.url), { type: 'module' });
+        worker.addEventListener('message', handleMessage);
+    }
+    return worker;
 };
 
 const withLoading = async <T,>(fn: (id: string) => Promise<T>): Promise<T> => {
@@ -66,9 +66,14 @@ function callWorker<K extends keyof WorkerActions>(
     return withLoading((id) => new Promise((resolve, reject) => {
         pendingRequests.set(id, { resolve: resolve as (value: unknown) => void, reject });
         // payload が void の場合は id だけ送る
+        const safePayload = (payload !== null && typeof payload === 'object') ? payload : {};
+
         getWorker().postMessage({
             type,
-            payload: { ...(payload || {}), id }
+            payload: {
+                ...safePayload,
+                id,
+            }
         });
     }));
 }

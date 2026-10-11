@@ -1,0 +1,59 @@
+.root {
+  padding: 0;
+  display: inline-block;
+  height: 25px;
+}
+
+.main {
+  display: flex;
+  padding: 0;
+  margin: 0;
+  border-radius: 4px;
+  max-width: 15rem;
+  overflow: hidden;
+}
+
+.content {
+  display: flex;
+  flex: 1;
+  position: relative;
+
+  input {
+    height: 25px;
+    outline-style: none;
+    padding-left: 8px;
+    padding-right: 34px;
+    width: 100%;
+    font-size: 14px;
+    border: #ddd 1px solid;
+    border-right: none;
+    border-top-left-radius: 6px;
+    border-bottom-left-radius: 6px;
+
+    &:focus {
+      border-color: #1677ff;
+    }
+    &:hover {
+      border-color: #1677ff;
+    }
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  button {
+    position: absolute;
+    right: 8px;
+    padding: 4px;
+  }
+}
+
+.search {
+  color: white;
+  background-color: #1677ff;
+  padding: 1px 6px;
+  font-size: 13px;
+  border: none;
+}

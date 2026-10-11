@@ -26,23 +26,7 @@ export interface TopMonth {
     total: number;
 }
 
-export const RowKind = {
-  NONE: 0,
-  TOP: 1,
-  BODY: 2,
-  BOTTOM: 3,
-} as const;
-
-export type RowKindType = typeof RowKind[keyof typeof RowKind];
-export interface TableRow extends Partial<CashMonth> {
-    kind?: RowKindType;
-    isSameDay?: boolean,
-    isSameShop?: boolean,
-    isSameTime?: boolean,
-    isSameAccount?: boolean
-}
-
-export type TableData = TableRow[];
+export type TableData = CashMonth[];
 
 type VirtualFields = "year" | "month" | "date";
 

@@ -1,122 +1,164 @@
-import { useEffect, useRef, useState } from 'react'
-import { Button, Layout, Tooltip } from 'antd'
-import {
-  BarChartOutlined,
-  EditOutlined,
-  GithubOutlined,
-  OrderedListOutlined,
-  SearchOutlined
-} from '@ant-design/icons'
-import { DockLayout, type LayoutData } from 'rc-dock'
 import './App.css'
-import './assets/styles/vendors.css';
-import { DataReport } from './features/reporter/DataReport'
-import { SearchFilter } from './features/searcher/SearchFilter'
-import { DataChart } from './features/visualizer/DataChart'
-import { DataEditor } from './features/editor/DataEditor'
-import { TopMenu } from './features/menu/TopMenu'
-import { Footer } from 'antd/es/layout/layout'
-import { useFileAction } from './hooks/useFileAction'
-import logoimage from "./assets/logo.png"
-import { useDataStore } from './store/useDataStore'
+import { TopMenu } from './features/menu'
+import { ConfirmModalProvider } from '@/components/ConfirmModal'
+import { MessageProvider } from '@/components/Message'
 import { getWorker } from './services/sqliteClient'
-import { getMigemo } from './features/editor/utils'
+import { Image } from "@kobalte/core/image";
+import { Link } from "@kobalte/core/link";
+import { DockviewSolid, themeLight, type DockviewReadyEvent, type IDockviewPanelProps, type PanelParameters } from '@arminmajerie/dockview-solid'
+import '@arminmajerie/dockview-solid/styles/dockview.css';
+import { Editor } from './features/editor'
+import { Searcher } from './features/searcher'
+import { Reporter } from './features/reporter'
+import { Visualizer } from './features/visualizer'
+import { getMigemo } from './services/migemo'
+import { createFileAction } from './hooks/fileAction'
+import { createEffect, onMount, Show } from 'solid-js'
+import { dataStore, setIsLoading } from './store/dataStore'
+import { SettingsModal } from './features/settings'
+import { Receipt } from './features/receipt'
 
-const { Header, Content } = Layout
-const dockLayoutStyle: React.CSSProperties = { position: 'absolute', left: 0, top: 40, right: 0, bottom: 0 }
-const defaultLayout: LayoutData = {
-  dockbox: {
-    mode: 'vertical',
-    children: [
-      {
-        tabs: [
-          {
-            id: 'id_input', title: <><EditOutlined /> 入力</>, content: (
-              <DataEditor />
-            ), cached: true
-          }
-        ]
-      },
-      {
-        tabs: [
-          {
-            id: 'id_search', title: <><SearchOutlined /> 検索</>, content: (
-              <SearchFilter />
-            ), cached: true
-          },
-          {
-            id: 'id_chart', title: <><BarChartOutlined /> グラフ</>, content: (
-              <DataChart />
-            ), cached: true
-          },
-          {
-            id: 'id_topexpend', title: <><OrderedListOutlined /> 支出上位</>, content: (
-              <DataReport />
-            ), cached: true
-          },
-        ]
-      }
-    ]
-  }
-}
-function App() {
-  const [isReady, setIsReady] = useState(false);
-  const refDock = useRef(null);
-  const { openSession } = useFileAction();
-  const { fileName } = useDataStore();
+type CustomPanelParams = PanelParameters & {
+    kind?: 'editor' | 'searcher' | 'reporter' | 'visualizer' | 'receipt';
+    [key: string]: any;
+};
 
-  useEffect(() => {
-    const start = async () => {
-      getWorker();
-      getMigemo();
-      try {
-        await openSession();
-      } catch {
-        /* empty */
-      } finally {
-        setIsReady(true);
-      }
-    };
-    start();
-  }, [openSession]);
+function PanelContent(props: IDockviewPanelProps<CustomPanelParams>) {
+    const kind = props.params?.kind;
 
-  useEffect(() => {
-    if (fileName) {
-      document.title = `${fileName} - MnyMiru`;
-    } else {
-      document.title = "MnyMiru";
+    switch (kind) {
+        case 'editor':
+            return <Editor />;
+        case 'searcher':
+            return <Searcher />;
+        case 'reporter':
+            return <Reporter />;
+        case 'visualizer':
+            return <Visualizer />;
+        case 'receipt':
+            return <Receipt />;
+        default:
+            return <div />;
     }
-  }, [fileName]);
-
-  if (!isReady) {
-    return null; // または <div>Loading...</div>
-  }
-  return (
-    <>
-      <Layout>
-        <Header className="title_header">
-          <TopMenu />
-          <img src={logoimage} /> <h1 className='title'>MnyMiru</h1>{import.meta.env.PACKAGE_VERSION}
-          [{fileName || "New"}]
-          <Tooltip title="View on GitHub" placement="bottomRight">
-            <Button
-              className="source_link"
-              type="text"
-              icon={<GithubOutlined />}
-              href="https://github.com/gearsns/mnymiru"
-              target="_blank"
-            />
-          </Tooltip>
-        </Header>
-        <Content>
-          <DockLayout ref={refDock} defaultLayout={defaultLayout}
-            style={dockLayoutStyle}
-          />
-        </Content>
-        <Footer></Footer>
-      </Layout>
-    </>
-  )
 }
 
-export default App
+function App() {
+    const { openSession } = createFileAction();
+
+    onMount(() => {
+
+    });
+
+    createEffect(() => {
+        if (dataStore.fileName) {
+            document.title = `${dataStore.fileName} - MnyMiru`;
+        } else {
+            document.title = `MnyMiru`;
+        }
+    });
+
+    const handleReady = (event: DockviewReadyEvent) => {
+        const api = event.api;
+        if (!api) return;
+        api.closeAllGroups();
+        // 1. まず上側に「インプットシート」を追加
+        const editorPanel = api.addPanel({
+            id: 'editor',
+            component: 'panelContent',
+            title: '入力',
+            params: { kind: 'editor' },
+        });
+
+        // 2. 下側に「検索シート」を追加 (inputPanelの下に配置)
+        const searcherPanel = api.addPanel({
+            id: 'searcher',
+            component: 'panelContent',
+            title: '検索',
+            params: { kind: 'searcher' },
+            position: {
+                referencePanel: editorPanel,
+                direction: 'below', // 下側に分割
+            },
+        });
+
+        // 3. 検索シートと同じタブエリア（あるいはタブの隣）に「グラフシート」を追加したい場合
+        // 下側のエリアにタブとして追加したいときは以下のようにします
+        const visualizerPanel = api.addPanel({
+            id: 'visualizer',
+            component: 'panelContent',
+            title: 'グラフ',
+            params: { kind: 'visualizer' },
+            position: {
+                referencePanel: searcherPanel,
+                direction: 'within', // 同じグループにタブとして追加
+            },
+        });
+        const panelContent = api.addPanel({
+            id: 'reporter',
+            component: 'panelContent',
+            title: '上位支出',
+            params: { kind: 'reporter' },
+            position: {
+                referencePanel: visualizerPanel,
+                direction: 'within', // 同じグループにタブとして追加
+            },
+        });
+        api.addPanel({
+            id: 'receipt',
+            component: 'panelContent',
+            title: 'レシート',
+            params: { kind: 'receipt' },
+            position: {
+                referencePanel: panelContent,
+                direction: 'within', // 同じグループにタブとして追加
+            },
+        });
+        searcherPanel.api.setActive();
+        editorPanel.api.setActive();
+        setIsLoading(true);
+        const start = async () => {
+            getWorker();
+            getMigemo();
+            try {
+                await openSession();
+            } catch {
+
+            } finally {
+                setIsLoading(false);
+            }
+        }
+        start();
+    };
+
+    return (
+        <>
+            <ConfirmModalProvider />
+            <MessageProvider />
+            <SettingsModal />
+            <Show when={dataStore.isLoading}>
+                <div class="loading">
+                    <div></div>
+                </div>
+            </Show>
+            <header class="header">
+                <TopMenu /><Image class="menu">
+                    <Image.Img src="./image/app.svg" />
+                </Image>{import.meta.env.PACKAGE_DISPLAY_NAME} {import.meta.env.PACKAGE_VERSION}
+                <Link class="link" href="https://github.com/gearsns/mnymiru" target="_blank">
+                    <Image>
+                        <Image.Img class="github" src="./image/github.svg" />
+                    </Image>
+                </Link>
+            </header>
+            <main class="main">
+                <DockviewSolid
+                    theme={themeLight}
+                    components={{ panelContent: PanelContent }}
+                    onReady={handleReady}
+                />
+            </main>
+        </>
+    );
+}
+
+export default App;

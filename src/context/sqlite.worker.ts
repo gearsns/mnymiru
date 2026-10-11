@@ -12,6 +12,7 @@ self.onmessage = async (e: MessageEvent<WorkerMessage>) => {
         const result = await handler(payload);
         self.postMessage({ type, id, result } as WorkerResponse);
     } catch (error) {
+        console.log([type, payload, error]);
         // エラーが起きた場合もIDを返さないと、React側のawaitが永遠に終わらない
         self.postMessage({
             id,

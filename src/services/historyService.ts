@@ -22,7 +22,7 @@ export const historyService = {
       handle: param?.handle,
       dir: param?.dir,
       data: param?.data || new Uint8Array(),
-      isDirty: true,
+      isDirty: false,
       timestamp: Date.now()
     });
   },

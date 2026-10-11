@@ -1,11 +1,26 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import initSqlJs from "sql.js";
+import type { Database } from 'sql.js'
 import { historyService } from "../../services/historyService";
 import { fetchOne } from "./utils";
 import { handleInit } from './init';
 
+const { mockedInitSqlJsFn } = vi.hoisted(() => {
+    const mockDb = {
+        exec: vi.fn(),
+    };
+    return {
+        mockedInitSqlJsFn: vi.fn(),
+        dbConstructorSpy: vi.fn(),
+        mockDb,
+    };
+});
+vi.mock("../../vendor/sql-wasm.js", () => ({
+    default: mockedInitSqlJsFn,
+}));
 // モジュール全体のモック化
-vi.mock("sql.js");
+vi.mock("sql.js", () => ({
+    default: vi.fn() // initSqlJs 自体のモック
+}));
 vi.mock("../../services/historyService");
 vi.mock("./utils");
 
@@ -22,10 +37,9 @@ describe('handleInit', () => {
     // Database型の部分的なモックを作成
     const mockDb = {
         exec: vi.fn(),
-    } as unknown as initSqlJs.Database;
+    } as unknown as Database;
 
     // 各モック関数に型を付与
-    const mockedInitSqlJs = vi.mocked(initSqlJs);
     const mockedHistoryService = vi.mocked(historyService);
     const mockedFetchOne = vi.mocked(fetchOne);
 
@@ -35,20 +49,20 @@ describe('handleInit', () => {
         vi.clearAllMocks();
 
         // initSqlJs が Database クラスを持つオブジェクトを返すよう設定
-        const MockDatabase = function (this: initSqlJs.Database, data?: Uint8Array) {
+        const MockDatabase = function (this: Database, data?: Uint8Array) {
             dbConstructorSpy(data); // 渡された引数を記録
             return mockDb; // インスタンスとして mockDb を返す
         };
-        mockedInitSqlJs.mockResolvedValue({
+        mockedInitSqlJsFn.mockResolvedValue({
             Database: MockDatabase as unknown
-        } as unknown as initSqlJs.SqlJsStatic);
+        });
 
         // デフォルトのDBバージョン（マイグレーション不要な状態）を返す
-        mockedFetchOne.mockReturnValue({ value: '2' });
+        mockedFetchOne.mockResolvedValue({ value: '2' });
     });
 
     it('isSessionがtrueの場合、前回のセッションデータからDBを復元する', async () => {
-        const ctx: { db: initSqlJs.Database | null } = { db: null };
+        const ctx: { db: Database | null } = { db: null };
         const dummyData = new Uint8Array([0, 1, 2]);
 
         mockedHistoryService.getLastSession.mockResolvedValue({

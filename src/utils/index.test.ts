@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getWeekdayNames, isEmpty, isValidDay } from '.';
+import { getLastDayOfMonth, getNextMonth, getWeekdayNames, isEmpty, isValidDay } from '.';
 
 describe('Utility Functions Test', () => {
     describe('isEmpty', () => {
@@ -55,6 +55,41 @@ describe('Utility Functions Test', () => {
         it('0以下の数値に対してfalseを返すこと', () => {
             expect(isValidDay(2024, 0, 0)).toBe(false);
             expect(isValidDay(2024, 0, -1)).toBe(false);
+        });
+    });
+
+    describe('getNextMonth', () => {
+        it('指定した月数だけ未来の日付が取得できること', () => {
+            const baseDate = new Date(2024, 0, 15); // 2024年1月15日
+            const nextDate = getNextMonth(2, baseDate); // 2ヶ月後
+            expect(nextDate.getFullYear()).toBe(2024);
+            expect(nextDate.getMonth()).toBe(2); // 3月 (0始まり)
+            expect(nextDate.getDate()).toBe(15);
+        });
+
+        it('指定した月数だけ過去の日付が取得できること', () => {
+            const baseDate = new Date(2024, 3, 10); // 2024年4月10日
+            const prevDate = getNextMonth(-1, baseDate); // 1ヶ月前
+            expect(prevDate.getFullYear()).toBe(2024);
+            expect(prevDate.getMonth()).toBe(2); // 3月 (0始まり)
+            expect(prevDate.getDate()).toBe(10);
+        });
+
+        it('引数に日付が渡されない場合、現在基準で計算されること', () => {
+            const result = getNextMonth(0);
+            expect(result).toBeInstanceOf(Date);
+        });
+    });
+
+    describe('getLastDayOfMonth', () => {
+        it('各月の末日が正しく取得できること', () => {
+            expect(getLastDayOfMonth(new Date(2024, 0, 15))).toBe(31); // 1月
+            expect(getLastDayOfMonth(new Date(2024, 3, 10))).toBe(30); // 4月
+        });
+
+        it('うるう年の2月の末日を正しく取得できること', () => {
+            expect(getLastDayOfMonth(new Date(2024, 1, 10))).toBe(29); // 2024年はうるう年
+            expect(getLastDayOfMonth(new Date(2023, 1, 10))).toBe(28); // 2023年は平年
         });
     });
 });

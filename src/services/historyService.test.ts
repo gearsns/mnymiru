@@ -50,13 +50,13 @@ describe('historyService', () => {
     });
 
     describe('Session Management', () => {
-        it('initPersistData で新しいセッションが作成され isDirty が true になる', async () => {
+        it('initPersistData で新しいセッションが作成され isDirty が false になる', async () => {
             const data = new Uint8Array([1, 2, 3]);
             await historyService.initPersistData({ data });
 
             const session = await historyService.getLastSession();
             expect(session?.id).toBe('current');
-            expect(session?.isDirty).toBe(true);
+            expect(session?.isDirty).toBe(false);
             expect([...session!.data]).toEqual([...data]);
         });
 

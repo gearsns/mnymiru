@@ -1,6 +1,5 @@
 import type { Database } from "sql.js";
 import type { WorkerActions } from "../../types/typesWorkers";
-import initSqlJs from "sql.js";
 import { historyService } from "../../services/historyService";
 import { INITIAL_SCHEMA } from "../../db/schema";
 import { EXISTS_CASH_TALBE, SELECT_DB_VERSION, UPDATE_DB_VERSION } from "../../db/meta";
@@ -9,11 +8,16 @@ import { MIGRATION } from "../../db/migration";
 
 type Action = WorkerActions['init'];
 
+import sqlModule from '../../vendor/sql-wasm.js';
+import wasmUrl from '../../vendor/sql-wasm.wasm?url';
+
+const initSqlJs = sqlModule;
+
 export const handleInit = async (
     ctx: { db: Database | null }, { handle, dir, isSession }: Action['payload']
 ): Promise<Action['response']> => {
     const SQL = await initSqlJs({
-        locateFile: () => '../sql-wasm.wasm' // `./${file}` // または自分のpublicパス
+        locateFile: () => wasmUrl //'../sql-wasm.wasm' // `./${file}` // または自分のpublicパス
     });
     // ファイルハンドルがあれば読み込み、なければ新規
     const lastSession =

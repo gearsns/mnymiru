@@ -98,7 +98,7 @@ SELECT
 FROM 
   (
     SELECT 
-      cash.*,
+      *,
       row_number() over (partition by year_month order by total asc) as rank
     FROM cash_entries
     WHERE 
@@ -165,6 +165,7 @@ SELECT
 FROM cash_entries WHERE
   year_month >= @year_min and year_month <= @year_max and total<0 and is_deleted = 0
   and account!=''
+  and note not like '%#除外%'
 GROUP BY account
 ORDER BY account
 `

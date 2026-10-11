@@ -17,6 +17,7 @@ export const handleFetchYearTop = async (
         '@year_max': year * 100 + 12,
         ...(account && { '@account': account }) // accountがある場合のみプロパティを追加
     };
+    console.log(params)
     const query = account ? SELECT_YEAR_TOP_BY_ACCOUNT : SELECT_YEAR_TOP;
     return fetchAll(db, query, params);
 }

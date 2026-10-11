@@ -1,5 +1,5 @@
 import { beforeEach, describe, it, expect } from 'vitest';
-import { type Database } from 'sql.js';
+import type {Database } from 'sql.js';
 import { handleFetchTopItemByColumn } from './fetchTopItemByColumn';
 import { createTestData, getSqlDatabase, insertData } from '../../test/setup-sqlite';
 

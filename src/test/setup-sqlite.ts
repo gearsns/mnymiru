@@ -1,17 +1,22 @@
 import { readFileSync } from "fs";
-import { createRequire } from "module";
-import initSqlJs, { type Database } from "sql.js";
+import type { Database } from "sql.js";
 import { INITIAL_SCHEMA } from "../db/schema";
 import type { CashTable } from "../db/types";
 import { INSERT_VALUES } from "../db/queries";
+import sqlModule from '../vendor/sql-wasm.js';
+import wasmUrl from '../vendor/sql-wasm.wasm?url';
+import path from "path";
+import { fileURLToPath } from "url";
+
+const initSqlJs = sqlModule;
 
 let SQL: initSqlJs.SqlJsStatic | null = null;
 async function getSqlInstance() {
     if (!SQL) {
-        const require = createRequire(import.meta.url);
-        const wasmPath = require.resolve('sql.js/dist/sql-wasm.wasm');
-        const wasmBinary = readFileSync(wasmPath);
-        SQL = await initSqlJs({
+        const __dirname = path.dirname(fileURLToPath(import.meta.url));
+        const wasmFullPath = path.resolve(__dirname, `..${wasmUrl.replace('/src', '')}`);
+        const wasmBinary = readFileSync(wasmFullPath);
+         SQL = await initSqlJs({
             wasmBinary: new Uint8Array(wasmBinary).buffer
         })
     }
@@ -42,12 +47,12 @@ const orgRawData: unknown[][] = [
     [202401, 2, 5, "スーパー", "18:00", "日用品", "洗剤", 300, 1, 0, -300, "現金", "", 0],
     [202401, 2, 6, "スーパー", "18:00", "日用品", "洗剤", 300, 1, 0, -300, "カード", "", 0],
     [202401, 2, 7, "スーパー", "18:00", "日用品", "洗剤", 300, 1, 0, -300, "カード", "", 0],
-    [202401, 2, 10, "スーパー", "18:00", "日用品", "洗剤", 300, 1, 0, -300, "カード", "",0],
-    [202402, 2, 1, "スーパー", "18:00", "日用品", "洗剤", 300, 1, 0, -300, "カード", "",0],
-    [202402, 2, 2, "スーパー", "18:00", "日用品", "洗剤", 300, 1, 0, -300, "カード", "",0],
-    [202402, 2, 3, "スーパー", "18:00", "日用品", "洗剤", 300, 1, 0, -300, "カード", "",0],
-    [202402, 2, 4, "スーパー", "18:00", "日用品", "洗剤", 300, 1, 0, -300, "カード", "",0],
-    [202402, 2, 5, "スーパー", "18:00", "日用品", "洗剤", 300, 1, 0, -300, "カード", "",0],
+    [202401, 2, 10, "スーパー", "18:00", "日用品", "洗剤", 300, 1, 0, -300, "カード", "", 0],
+    [202402, 2, 1, "スーパー", "18:00", "日用品", "洗剤", 300, 1, 0, -300, "カード", "", 0],
+    [202402, 2, 2, "スーパー", "18:00", "日用品", "洗剤", 300, 1, 0, -300, "カード", "", 0],
+    [202402, 2, 3, "スーパー", "18:00", "日用品", "洗剤", 300, 1, 0, -300, "カード", "", 0],
+    [202402, 2, 4, "スーパー", "18:00", "日用品", "洗剤", 300, 1, 0, -300, "カード", "", 0],
+    [202402, 2, 5, "スーパー", "18:00", "日用品", "洗剤", 300, 1, 0, -300, "カード", "", 0],
 ];
 
 // 3. 変換（Object.fromEntries を使用）

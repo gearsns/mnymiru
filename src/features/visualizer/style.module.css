@@ -1,0 +1,16 @@
+.root {
+  padding: 0;
+  background-color: white;
+  height: 100%;
+}
+
+.main {
+  padding: 4px;
+  height: 30px;
+  display: flex;
+  gap: 4px;
+}
+
+.grid {
+  height: calc(100% - 38px);
+}

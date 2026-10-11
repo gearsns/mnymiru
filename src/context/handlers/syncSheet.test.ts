@@ -1,5 +1,5 @@
 import { beforeEach, describe, it, expect } from 'vitest';
-import { type Database } from 'sql.js';
+import type { Database } from 'sql.js';
 import { createTestData, getSqlDatabase, insertData } from '../../test/setup-sqlite';
 import { handleSyncSheet } from './syncSheet';
 import { handleFetchSheet } from './fetchSheet';
@@ -12,7 +12,7 @@ const rawData: unknown[][] = [
     [202401, 2, 5, "スーパー", "18:00", "日用品", "洗剤", 300, 1, 0, -300, "現金", "", 0],
     [202401, 2, 6, "スーパー", "18:00", "日用品", "洗剤", 300, 1, 0, -300, "カード", "", 0],
     [202401, 2, 7, "スーパー", "18:00", "日用品", "洗剤", 300, 1, 0, -300, "カード", "", 0],
-    [202401, 2, 10, "スーパー", "18:00", "日用品", "洗剤", 300, 1, 0, -300, "カード", "",0],
+    [202401, 2, 10, "スーパー", "18:00", "日用品", "洗剤", 300, 1, 0, -300, "カード", "", 0],
 ];
 
 describe('SQLite Query Test', () => {
@@ -31,7 +31,7 @@ describe('SQLite Query Test', () => {
             tableData: toTestData
         });
         expect(res).toBe(true);
-        const data = await handleFetchSheet(db, {key: "202401"});
+        const data = await handleFetchSheet(db, { key: "202401" });
         expect(data.length).toBe(8);
     });
 });

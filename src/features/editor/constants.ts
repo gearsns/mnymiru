@@ -1,4 +1,4 @@
-import type { CashMonth, TableRow } from "../../db/types"
+import type { CashMonth } from "../../db/types"
 
 export const INPUTSHEET_INIT_ROWS = 2000;
 export type RendererType = "day" | "shop" | "time" | "number";
@@ -24,6 +24,14 @@ export const columnDefs = [
     { data: 'note', width: 200, type: "autocomplete" },
 ] as const satisfies readonly ColumnDef[];
 
-export const MyColumnIndexToName = Object.fromEntries(
+export const ColumnIndexToName = Object.fromEntries(
     columnDefs.map((c, i) => [i, c.data])
-) as Record<number, keyof TableRow>;
+) as Record<number, keyof CashMonth>;
+
+export const ColumnNameToIndex = Object.fromEntries(
+    columnDefs.map((c, i) => [c.data, i])
+) as Record<keyof CashMonth, number>;
+
+export const ItemIndex = Object.fromEntries(
+    columnDefs.map((c, i) => [c.data, i])
+) as Record<keyof CashMonth, number>;

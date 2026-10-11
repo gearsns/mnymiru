@@ -1,5 +1,5 @@
 import { beforeEach, describe, it, expect } from 'vitest';
-import { type Database } from 'sql.js';
+import type { Database } from 'sql.js';
 import { createTestData, getSqlDatabase, insertData } from '../../test/setup-sqlite';
 import { handleFetchMonthTotal } from './fetchMonthTotal';
 

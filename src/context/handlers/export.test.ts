@@ -1,7 +1,7 @@
 import { beforeEach, describe, it, expect } from 'vitest';
-import { type Database } from 'sql.js';
 import { createTestData, getSqlDatabase, insertData } from '../../test/setup-sqlite';
 import { handleExport } from './export';
+import type { Database } from 'sql.js';
 
 const createMockFileHandle = (initialContent = "") => {
     let content = initialContent;
@@ -11,7 +11,7 @@ const createMockFileHandle = (initialContent = "") => {
         name: 'mock.txt',
         getFile: async () => new File([content], 'mock.txt'),
         createWritable: async () => ({
-            truncate: (_: number) => {},
+            truncate: (_: number) => { },
             write: async (newData: string) => { content = newData; },
             close: async () => { }
         })

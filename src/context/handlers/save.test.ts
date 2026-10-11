@@ -1,5 +1,5 @@
 import { beforeEach, describe, it, expect, vi } from 'vitest';
-import { type Database } from 'sql.js';
+import type { Database } from 'sql.js';
 import { createTestData, getSqlDatabase, insertData } from '../../test/setup-sqlite';
 import { handleSave } from './save';
 import { historyService } from '../../services/historyService';
