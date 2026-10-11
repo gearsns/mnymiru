@@ -46,7 +46,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './dict'
+          path: './dist'
 
       # Pages専用サーバーへデプロイ
       - name: Deploy to GitHub Pages
