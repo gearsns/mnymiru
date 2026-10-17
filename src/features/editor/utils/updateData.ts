@@ -21,10 +21,16 @@ export const updateRelatedData = async (
     const currentValues = new Map<string, CellValue>();
     const getKey = (r: number, c: number): string => `${r}-${c}`;
 
+    let isEmptyOnly = true;
     // まず初期の変更をマップに登録
     for (const edit of sortedEdits) {
         currentValues.set(getKey(edit.row, edit.col), edit.after);
+        if (!isEmpty(edit.after)){
+            isEmptyOnly = false;
+        }
     }
+    // deleteで削除されたときは補完しない
+    if (isEmptyOnly) return; 
 
     const changesToMerge: CellChange[] = [];
 

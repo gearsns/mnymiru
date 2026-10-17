@@ -578,24 +578,50 @@ export function createGridController(props: CanvasTableGridProps) {
         const text = e.clipboardData?.getData("text/plain") ?? "";
         if (!text) return;
         const parsed = parseClipboardText(text);
-        const start = { row: store.selection().range.r1, col: store.selection().range.c1 };
-        // autoAppendRows 有効時は、貼り付け内容が現在の行数を超えても行を足して全部貼る（行追加も貼り付けと同じUndo単位）
-        const growRows = store.autoAppendRows > 0;
-        const range = computePasteRange({
-            start,
-            pastedRows: parsed.length,
-            pastedCols: Math.max(1, ...parsed.map((r) => r.length)),
-            totalRows: store.rows,
-            totalCols: store.cols,
-            growRows,
-        });
+        if (parsed.length === 0 || parsed[0].length === 0) return;
+
+        const pastedRows = parsed.length;
+        const pastedCols = Math.max(1, ...parsed.map((r) => r.length));
+
+        const currentSelection = store.selection();
+        const selRange = currentSelection.range;
+
+        // 単一セル選択か複数セル選択かを判定
+        const isSingleCellSelected = selRange.r1 === selRange.r2 && selRange.c1 === selRange.c2;
+
+        const start = { row: selRange.r1, col: selRange.c1 };
+
+        let range: { r1: number; c1: number; r2: number; c2: number };
+        let growRows = false;
+
+        if (isSingleCellSelected) {
+            // 単一セル選択時は従来の動作（貼り付けデータのサイズに応じて決定、autoAppendRowsの対象）
+            growRows = store.autoAppendRows > 0;
+            range = computePasteRange({
+                start,
+                pastedRows,
+                pastedCols,
+                totalRows: store.rows,
+                totalCols: store.cols,
+                growRows,
+            });
+        } else {
+            // 複数セル選択時は現在の選択範囲をそのまま利用（リピート貼り付け）
+            range = selRange;
+        }
+
         const { r2: endRow, c2: endCol } = range;
 
         const token: EditToken = store.setRangeValues(range, (r, c) => {
-            const raw = parsed[r - start.row]?.[c - start.col];
+            // 貼り付け元データを繰り返し配置するために剰余 (%) を計算
+            const rowOffset = (r - start.row) % pastedRows;
+            const colOffset = (c - start.col) % pastedCols;
+
+            const raw = parsed[rowOffset]?.[colOffset];
             if (raw === undefined) return store.getCell(r, c);
             return coerceValue(raw, store.getFormat(r, c));
         }, { growRows });
+
         void runOnChange(start.row, start.col, store.getCell(start.row, start.col), token);
 
         store.setActiveCell(start);
