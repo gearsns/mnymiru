@@ -139,8 +139,42 @@ export const updateRelatedData = async (
 
         // 3. expenses (5), quantity (6), incomes (7) のいずれかに変更あり -> total (8) の計算
         if (c === ItemIndex.expenses || c === ItemIndex.quantity || c === ItemIndex.incomes) {
-            const expenses = parseNum(getVal(r, ItemIndex.expenses));
-            const rawQuantity = getVal(r, ItemIndex.quantity);
+            let expensesVal = getVal(r, ItemIndex.expenses);
+            let incomesVal = getVal(r, ItemIndex.incomes);
+            let rawQuantity = getVal(r, ItemIndex.quantity);
+            // ★ 支出または収入に "1*2" や "1x2"（全角の「×」含む）が入力された場合のパース処理
+            const parseExpression = (val: CellValue) => {
+                if (isEmpty(val)) return null;
+                const str = String(val).trim();
+                // 例: 1*2, 1×2, 1 x 2 などのパターンにマッチ
+                const match = str.match(/^([\d,.]+)\s*[\*times×xX]\s*([\d,.]+)$/);
+                if (match) {
+                    const left = parseNum(match[1]);
+                    const right = parseNum(match[2]);
+                    return { left, right };
+                }
+                return null;
+            };
+
+            if (c === ItemIndex.expenses && !isEmpty(expensesVal)) {
+                const parsed = parseExpression(expensesVal);
+                if (parsed) {
+                    expensesVal = parsed.left;
+                    rawQuantity = parsed.right;
+                    updateVal(r, ItemIndex.expenses, expensesVal);
+                    updateVal(r, ItemIndex.quantity, rawQuantity);
+                }
+            } else if (c === ItemIndex.incomes && !isEmpty(incomesVal)) {
+                const parsed = parseExpression(incomesVal);
+                if (parsed) {
+                    incomesVal = parsed.left;
+                    rawQuantity = parsed.right;
+                    updateVal(r, ItemIndex.incomes, incomesVal);
+                    updateVal(r, ItemIndex.quantity, rawQuantity);
+                }
+            }
+
+            const expenses = parseNum(expensesVal);
             // quantity は未設定または0なら1とみなす
             const quantity = (isEmpty(rawQuantity) || parseNum(rawQuantity) === 0) ? 1 : parseNum(rawQuantity);
             const incomes = parseNum(getVal(r, ItemIndex.incomes));

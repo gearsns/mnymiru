@@ -37,8 +37,8 @@ export function createInputOverlay(ctx: GridContext, viewport: Viewport) {
         const input = els.input;
         input.style.left = `${r.x}px`;
         input.style.top = `${r.y}px`;
-        input.style.width = `${Math.max(0, r.w)}px`;
-        input.style.height = `${Math.max(0, r.h)}px`;
+        input.style.width = `${Math.max(0, r.w + 1)}px`;
+        input.style.height = `${Math.max(0, r.h + 1)}px`;
         input.style.fontSize = `${theme.fontSize}px`;
         input.style.fontFamily = theme.fontFamily;
         // セルの配置設定（左/中央/右寄せ）を編集中の入力欄にも反映する
