@@ -2,8 +2,7 @@ import CanvasTableGrid, { type CellValue, type GridStore } from '@/components/Ca
 import styles from './style.module.css';
 import { getCellFormat, getOptions, setNavigation } from '../common/readonlyGrid';
 import { FileField } from '@kobalte/core/file-field';
-import { setIsLoading } from '@/store/dataStore';
-import { createSettingsState } from '@/hooks/settingsState';
+import { loadSettings, setIsLoading } from '@/store/dataStore';
 import { analyzeReceiptImage } from '@/lib/gemini';
 import { ItemIndex } from '../common/readonlyGrid/constants';
 import { createSignal, onCleanup, onMount, Show } from 'solid-js';
@@ -11,14 +10,13 @@ import { createSignal, onCleanup, onMount, Show } from 'solid-js';
 export function Receipt() {
     let store: GridStore | undefined;
     let containerRef: HTMLDivElement | undefined;
-    const { settings } = createSettingsState();
     const [isAiAnalyzing, setIsAiAnalyzing] = createSignal(false);
 
     const handleFileAccept = async (files: File[]) => {
         if (files.length === 0) {
             return;
         }
-        const { apiKey, model } = settings();
+        const { apiKey, model } = loadSettings();
         const file = files[0];
         setIsLoading(true);
         setIsAiAnalyzing(true);
