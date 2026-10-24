@@ -162,38 +162,44 @@ export const updateRelatedData = async (
         if (!isEmpty(item.after)
             && getVal(item.row, ItemIndex.day)
             && (item.col === ItemIndex.day || item.col === ItemIndex.shop_name || item.col === ItemIndex.time || item.col === ItemIndex.account)) {
-            const r = item.row;
-            const day = item.col === ItemIndex.day ? item.before : getVal(r, ItemIndex.day);
-            const shopName = item.col === ItemIndex.shop_name ? item.before : getVal(r, ItemIndex.shop_name);
-            const time = item.col === ItemIndex.time ? item.before : getVal(r, ItemIndex.time);
-            const account = item.col === ItemIndex.account ? item.before : getVal(r, ItemIndex.account);
+            const fillSameValue = () => {
+                const r = item.row;
+                const day = item.col === ItemIndex.day ? item.before : getVal(r, ItemIndex.day);
+                const shopName = item.col === ItemIndex.shop_name ? item.before : getVal(r, ItemIndex.shop_name);
+                const time = item.col === ItemIndex.time ? item.before : getVal(r, ItemIndex.time);
+                const account = item.col === ItemIndex.account ? item.before : getVal(r, ItemIndex.account);
+                if (isEmpty(day) && isEmpty(shopName) && isEmpty(time) && isEmpty(account)) {
+                    return;
+                }
 
-            const prevDay = getVal(r - 1, ItemIndex.day);
-            const prevShopName = getVal(r - 1, ItemIndex.shop_name);
-            const prevTime = getVal(r - 1, ItemIndex.time);
-            const prevAccount = getVal(r - 1, ItemIndex.account);
-            // 先頭
-            if (day !== prevDay
-                || shopName !== prevShopName
-                || time !== prevTime
-                || account !== prevAccount
-            ) {
-                for (let rn = r + 1; rn < rows; ++rn) {
-                    const nextDay = getVal(rn, ItemIndex.day);
-                    const nextShopName = getVal(rn, ItemIndex.shop_name);
-                    const nextTime = getVal(rn, ItemIndex.time);
-                    const nextAccount = getVal(rn, ItemIndex.account);
-                    if (day === nextDay
-                        && shopName === nextShopName
-                        && time === nextTime
-                        && account === nextAccount
-                    ) {
-                        updateVal(rn, item.col, item.after);
-                    } else {
-                        break;
+                const prevDay = getVal(r - 1, ItemIndex.day);
+                const prevShopName = getVal(r - 1, ItemIndex.shop_name);
+                const prevTime = getVal(r - 1, ItemIndex.time);
+                const prevAccount = getVal(r - 1, ItemIndex.account);
+                // 先頭
+                if (day !== prevDay
+                    || shopName !== prevShopName
+                    || time !== prevTime
+                    || account !== prevAccount
+                ) {
+                    for (let rn = r + 1; rn < rows; ++rn) {
+                        const nextDay = getVal(rn, ItemIndex.day);
+                        const nextShopName = getVal(rn, ItemIndex.shop_name);
+                        const nextTime = getVal(rn, ItemIndex.time);
+                        const nextAccount = getVal(rn, ItemIndex.account);
+                        if (day === nextDay
+                            && shopName === nextShopName
+                            && time === nextTime
+                            && account === nextAccount
+                        ) {
+                            updateVal(rn, item.col, item.after);
+                        } else {
+                            return;
+                        }
                     }
                 }
             }
+            fillSameValue();
         }
         if (!isEmpty(item.after) && item.col === ItemIndex.detail) {
             const date = new Date();

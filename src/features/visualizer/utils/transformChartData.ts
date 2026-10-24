@@ -9,7 +9,7 @@ export const transformChartData = (data: TopMonth[]) => {
         const month = Math.trunc(item.year_month) % 100;
         const name = item.item_name || "[未指定]";
         const amount = -item.total;
-        values[month - 1][name] = amount;
+        values[month - 1][name] = (Number(values[month - 1][name]) || 0) + amount;
         itemKeys.add(name);
     });
 

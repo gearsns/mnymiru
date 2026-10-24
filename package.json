@@ -3,7 +3,7 @@
   "description": "",
   "displayName": "MnyMiru",
   "private": true,
-  "version": "2.0.2",
+  "version": "2.0.3",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -20,7 +20,6 @@
     "@kobalte/core": "^0.13.14",
     "@solid-primitives/keyed": "^1.5.3",
     "@solid-primitives/refs": "^1.1.4",
-    "chart.js": "^4.5.1",
     "class-variance-authority": "^0.7.1",
     "dayjs": "^1.11.23",
     "dexie": "^4.4.6",

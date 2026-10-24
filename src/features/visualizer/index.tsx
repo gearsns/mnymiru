@@ -3,11 +3,11 @@ import { createSignal } from 'solid-js';
 import { ChevronDown } from 'lucide-solid';
 import CustomDatePicker from "@/components/DatePicker";
 import { sqliteClient } from '@/services/sqliteClient';
-import { BarChart } from '@/components/Chart';
 import { transformChartData } from './utils/transformChartData';
 import type { ChartLabel, ChartValue } from './constants';
 import { CommonSelect } from '@/components/CommonSelect';
 import { CommonButton } from '@/components/CommonButton';
+import { StackedBarChart } from './StackedBarChart';
 
 type AccountOption = {
     value: string;
@@ -54,28 +54,13 @@ export function Visualizer() {
                 optionLabelKey="label"
                 placeholder="全て"
                 icon={<ChevronDown stroke-width={1} />}
-                />
+            />
         </div>
         <div class={styles.grid}>
-            <BarChart
-                options={{
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: {
-                            stacked: true
-                        }
-                    }
-                }}
-                data={{
-                    // X軸のラベル（例: 1月〜12月）
-                    labels: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
-                    // ラベル（項目）ごとのデータセットを作成
-                    datasets: chartLabels().map((labelInfo) => ({
-                        label: labelInfo.key,
-                        data: chartValues().map(v => Number(v[labelInfo.key]) || 0),
-                        backgroundColor: labelInfo.color,
-                    }))
-                }}
+            <StackedBarChart
+                categories={['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']}
+                series={chartLabels()}
+                values={chartValues()}
             />
         </div>
     </div>);
