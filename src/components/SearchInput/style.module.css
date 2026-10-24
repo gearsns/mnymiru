@@ -22,7 +22,7 @@
     height: 25px;
     outline-style: none;
     padding-left: 8px;
-    padding-right: 34px;
+    padding-right: 25px;
     width: 100%;
     font-size: 14px;
     border: #ddd 1px solid;
@@ -45,8 +45,10 @@
 
   button {
     position: absolute;
-    right: 8px;
+    right: 0;
+    background-color: transparent;
     padding: 4px;
+    border: 0;
   }
 }
 

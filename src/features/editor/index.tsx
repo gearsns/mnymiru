@@ -8,7 +8,6 @@ import { CASH_FIELD_LABELS, type TopItem } from "@/db/types";
 import { columnDefs, INPUTSHEET_INIT_ROWS, ColumnIndexToName, ColumnNameToIndex } from "./constants";
 import { sqliteClient } from "@/services/sqliteClient";
 import { clearNavigation, dataStore, registerSyncAction, setIsDirty, setIsLoading, unregisterSyncAction } from "@/store/dataStore";
-import type { GridController } from "@/components/CanvasTableGrid/gridController";
 import { getMigemo } from "@/services/migemo";
 import { filterResults, getSortedCounts, isAutocompleteIndex } from "./utils/autocomplete";
 import type { Migemo } from "jsmigemo";
@@ -22,6 +21,7 @@ import { rowsCompare } from "./utils/sort";
 import { searchValue } from "./utils/search";
 import { updateRelatedData } from "./utils/updateData";
 import { createShortcuts } from "./utils/shortcuts";
+import type { GridController } from "@/components/CanvasTableGrid/controller";
 
 let migemo: Migemo;
 async function loadMigemo() {
@@ -36,6 +36,7 @@ export function Editor() {
     let gridController: GridController;
     let activeSheetID = "";
     let editorId = "";
+    let syncTimer: number | undefined;
     const colHeaders = columnDefs.map(c => CASH_FIELD_LABELS[c.data]);
     const colWidths = columnDefs.map(c => c.width);
     const [currentDate, setCurrentDate] = createSignal(new Date());
@@ -61,13 +62,26 @@ export function Editor() {
 
     onCleanup(() => {
         unregisterSyncAction(editorId);
+        if (syncTimer) clearTimeout(syncTimer);
+        syncCurrentSheet();
     });
 
     createEffect(
-        on(() => store!.isDirty(), () => {
+        on(() => store?.isDirty?.(), (isDirty) => {
+            if (!isDirty) return;
+
             setIsDirty(true);
+
+            // 既存のタイマーがあればクリアしてリセット
+            if (syncTimer) {
+                clearTimeout(syncTimer);
+            }
+
+            syncTimer = window.setTimeout(async () => {
+                await syncCurrentSheet();
+            }, 1000);
         })
-    )
+    );
 
     createEffect(
         on(currentDate, (newDate, prevDate) => {
@@ -82,6 +96,7 @@ export function Editor() {
             saveData();
         })
     );
+
     createEffect(on(() => dataStore.fileSessionId, (id) => {
         if (!id) return;
         store!.markClean();          // 旧ファイルの未同期フラグを捨てる

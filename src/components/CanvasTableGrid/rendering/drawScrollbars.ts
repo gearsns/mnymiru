@@ -1,51 +1,35 @@
-import { computeScrollbarThumb, needsScrollbar, SCROLLBAR_SIZE } from "../lib/scrollbar";
+import { barThumb, SCROLLBAR_SIZE, type ScrollbarBar } from "../lib/scrollbar";
 import type { GridTheme } from "../types";
-import { defaultTheme } from "./drawGrid";
+import { defaultTheme } from "./theme";
 
 export interface DrawScrollbarsOptions {
-  width: number;
-  height: number;
   dpr: number;
-  headerWidth: number;
-  headerHeight: number;
-  scroll: { x: number; y: number };
-  /** 表示領域（ヘッダを除く実際にセルが見えている部分）のサイズ */
-  viewport: { w: number; h: number };
-  /** コンテンツ全体のサイズ（全行・全列の合計） */
-  content: { w: number; h: number };
+  /** 表示するスクロールバー（lib/scrollbar.ts の computeScrollbars で求める。内容が収まっている pane のバーは含まれない） */
+  bars: ScrollbarBar[];
   theme?: GridTheme;
 }
 
 /**
- * カスタムスクロールバー（縦・横）を canvas に描画する。
- * コンテンツが表示領域に収まっている軸は描画しない。
- * サイズ・位置の計算は `../lib/geometry` ではなく `../lib/scrollbar` の純粋関数に委譲している
+ * カスタムスクロールバーを canvas に描画する。分割していれば、pane ごとに1本ずつ描かれる
+ * （片方の pane にバーが必要なときは、もう一方もグレーのトラックだけ描いて見た目をそろえる）。
+ * サイズ・位置の計算は `../lib/scrollbar` の純粋関数に委譲している
  * （drawGrid.ts が座標計算を lib/geometry に委譲しているのと同じ考え方）。
  */
 export function drawScrollbars(ctx: CanvasRenderingContext2D, opts: DrawScrollbarsOptions) {
   const theme = opts.theme ?? defaultTheme;
-  const { width, height, dpr, headerWidth, headerHeight, scroll, viewport, content } = opts;
 
   ctx.save();
-  ctx.scale(dpr, dpr);
-
-  if (needsScrollbar({ viewport: viewport.h, content: content.h })) {
-    const trackH = height - headerHeight - SCROLLBAR_SIZE;
-    const thumb = computeScrollbarThumb({ viewport: viewport.h, content: content.h, scroll: scroll.y, track: trackH });
+  ctx.scale(opts.dpr, opts.dpr);
+  for (const bar of opts.bars) {
+    const t = bar.track;
     ctx.fillStyle = theme.scrollbarTrackColor;
-    ctx.fillRect(width - SCROLLBAR_SIZE, headerHeight, SCROLLBAR_SIZE, trackH);
+    ctx.fillRect(t.x, t.y, t.w, t.h);
+    // 無効なバー（内容が収まっている pane。見た目をそろえるために場所だけ確保したもの）は、トラックだけでつまみは描かない
+    if (!bar.enabled) continue;
+    const thumb = barThumb(bar);
     ctx.fillStyle = theme.scrollbarThumbColor;
-    ctx.fillRect(width - SCROLLBAR_SIZE + 2, headerHeight + thumb.offset, SCROLLBAR_SIZE - 4, thumb.size);
+    if (bar.orientation === "v") ctx.fillRect(t.x + 2, t.y + thumb.offset, SCROLLBAR_SIZE - 4, thumb.size);
+    else ctx.fillRect(t.x + thumb.offset, t.y + 2, thumb.size, SCROLLBAR_SIZE - 4);
   }
-
-  if (needsScrollbar({ viewport: viewport.w, content: content.w })) {
-    const trackW = width - headerWidth - SCROLLBAR_SIZE;
-    const thumb = computeScrollbarThumb({ viewport: viewport.w, content: content.w, scroll: scroll.x, track: trackW });
-    ctx.fillStyle = theme.scrollbarTrackColor;
-    ctx.fillRect(headerWidth, height - SCROLLBAR_SIZE, trackW, SCROLLBAR_SIZE);
-    ctx.fillStyle = theme.scrollbarThumbColor;
-    ctx.fillRect(headerWidth + thumb.offset, height - SCROLLBAR_SIZE + 2, thumb.size, SCROLLBAR_SIZE - 4);
-  }
-
   ctx.restore();
 }

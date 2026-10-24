@@ -28,7 +28,9 @@ export type GridAction =
   | "editF2"
   | "commitEnter"
   | "commitTab"
-  | "cancelEdit";
+  | "cancelEdit"
+  | "treeExpand"
+  | "treeCollapse";
 
 export interface KeyBinding {
   /** KeyboardEvent.key の値（大文字小文字は区別しない） */
@@ -69,6 +71,9 @@ export const defaultKeyBindings: Record<GridAction, KeyBinding[]> = {
   commitEnter: [{ key: "Enter" }],
   commitTab: [{ key: "Tab" }],
   cancelEdit: [{ key: "Escape" }],
+  // ツリーグリッドのみ。通常の矢印キーでセル移動するため、Alt を必須にして区別する
+  treeExpand: [{ key: "ArrowRight", alt: true }],
+  treeCollapse: [{ key: "ArrowLeft", alt: true }],
 };
 
 /** 判定に必要な最小限のキーイベント情報（実際の KeyboardEvent からも、テスト用の素のオブジェクトからも渡せる） */

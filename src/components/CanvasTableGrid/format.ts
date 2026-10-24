@@ -113,3 +113,18 @@ export function defaultColumnHeaderLabel(colIndex: number): string {
 export function defaultRowHeaderLabel(rowIndex: number): string {
   return String(rowIndex + 1);
 }
+
+/**
+ * columnHeaderLabel / rowHeaderLabel は「関数」または「文字列配列」のどちらでも受け取れるので、
+ * 内部用の関数に正規化する（配列の範囲外・未指定は fallback）。
+ */
+export function normalizeHeaderLabel(
+  option: ((index: number) => string) | string[] | undefined,
+  fallback: (index: number) => string
+): (index: number) => string {
+  if (option == null) return fallback;
+  if (Array.isArray(option)) {
+    return (index: number) => option[index] ?? fallback(index);
+  }
+  return option;
+}

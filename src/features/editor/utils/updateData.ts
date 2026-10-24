@@ -4,6 +4,42 @@ import { sqliteClient } from "@/services/sqliteClient";
 import { isEmpty } from "@/utils";
 import { ItemIndex } from "../constants";
 
+/**
+ * 時刻の文字列・数値を "HH:mm" 形式にフォーマットするヘルパー
+ * 例: 710 -> "07:10", "710" -> "07:10", "7:10" -> "07:10", 7 -> "07:00"
+ */
+const formatTime = (val: CellValue): CellValue => {
+    if (isEmpty(val)) return val;
+    const str = String(val).trim();
+
+    // 既に "HH:mm" 形式っぽい場合はそのままか軽く整形
+    if (/^\d{1,2}:\d{2}$/.test(str)) {
+        const [h, m] = str.split(":");
+        return `${h.padStart(2, "0")}:${m}`;
+    }
+
+    // 数字のみの場合（例: "710", "0710", "7" など）
+    const digits = str.replace(/\D/g, "");
+    if (digits.length === 3) {
+        // 710 -> 07:10
+        const h = digits.slice(0, 1).padStart(2, "0");
+        const m = digits.slice(1, 3);
+        return `${h}:${m}`;
+    } else if (digits.length === 4) {
+        // 0710 -> 07:10
+        const h = digits.slice(0, 2);
+        const m = digits.slice(2, 4);
+        return `${h}:${m}`;
+    } else if (digits.length === 1 || digits.length === 2) {
+        // 7 -> 07:00, 12 -> 12:00
+        const h = digits.padStart(2, "0");
+        return `${h}:00`;
+    }
+
+    // パースできない変な文字列ならそのまま返すか、必要に応じてハンドリング
+    return val;
+};
+
 export const updateRelatedData = async (
     row: number, col: number, value: CellValue, helpers: OnChangeHelpers
     , rows: number
@@ -24,13 +60,14 @@ export const updateRelatedData = async (
     let isEmptyOnly = true;
     // まず初期の変更をマップに登録
     for (const edit of sortedEdits) {
-        currentValues.set(getKey(edit.row, edit.col), edit.after);
-        if (!isEmpty(edit.after)){
+        const valToRegister = edit.col === ItemIndex.time ? formatTime(edit.after) : edit.after;
+        currentValues.set(getKey(edit.row, edit.col), valToRegister);
+        if (!isEmpty(edit.after)) {
             isEmptyOnly = false;
         }
     }
     // deleteで削除されたときは補完しない
-    if (isEmptyOnly) return; 
+    if (isEmptyOnly) return;
 
     const changesToMerge: CellChange[] = [];
 
@@ -47,8 +84,9 @@ export const updateRelatedData = async (
     // 値を更新・追加するヘルパー
     // currentValues と changesToMerge の両方に反映させることで、後続の行や同ループ内の getVal で取得可能になる
     const updateVal = (r: number, c: number, val: CellValue) => {
-        currentValues.set(getKey(r, c), val);
-        changesToMerge.push({ row: r, col: c, value: val });
+        const formattedVal = c === ItemIndex.time ? formatTime(val) : val;
+        currentValues.set(getKey(r, c), formattedVal);
+        changesToMerge.push({ row: r, col: c, value: formattedVal });
     };
 
     for (const edit of sortedEdits) {
@@ -114,8 +152,14 @@ export const updateRelatedData = async (
 
     if (targetEdits.length === 1) {
         const item = targetEdits[0];
+        // time列が直接変更された場合、フォーマットされた値がマージされるようにする
+        if (item.col === ItemIndex.time && !isEmpty(item.after)) {
+            const formattedAfter = formatTime(item.after);
+            if (formattedAfter !== item.after) {
+                updateVal(item.row, ItemIndex.time, formattedAfter);
+            }
+        }
         if (!isEmpty(item.after)
-            && !isEmpty(item.before)
             && getVal(item.row, ItemIndex.day)
             && (item.col === ItemIndex.day || item.col === ItemIndex.shop_name || item.col === ItemIndex.time || item.col === ItemIndex.account)) {
             const r = item.row;

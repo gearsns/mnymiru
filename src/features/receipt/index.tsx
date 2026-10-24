@@ -130,7 +130,7 @@ export function Receipt() {
                 onCellDoubleClick={(e) => setNavigation(e.row, e.col, [], store!)}
                 getCellFormat={getCellFormat}
                 refStore={(s) => (store = s)}
-                readOnly={true} />
+            />
         </div>
 
     </div>);
